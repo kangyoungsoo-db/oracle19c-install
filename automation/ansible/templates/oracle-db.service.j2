@@ -1,0 +1,28 @@
+# {{ ansible_managed }}
+# 부팅 시 리스너와 /etc/oratab에 Y로 표시된 DB를 올리고, 종료 시 정상 종료합니다.
+[Unit]
+Description=Oracle Database {{ oracle_sid }} and Listener
+After=network-online.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=oracle
+Group=oinstall
+Environment=ORACLE_HOME={{ oracle_home }}
+# SELinux(enforcing)에서는 systemd(init_t)가 /u01 아래 파일(라벨 없음 unlabeled_t · 일반 default_t)을 직접 실행하지 못한다
+# (status=203/EXEC Permission denied, 2026-10-28 실측) → 시스템 셸(bin_t)을 거쳐 실행
+ExecStart=/bin/bash -c '{{ oracle_home }}/bin/dbstart {{ oracle_home }}'
+ExecStop=/bin/bash -c '{{ oracle_home }}/bin/dbshut {{ oracle_home }}'
+TimeoutStartSec=600
+TimeoutStopSec=600
+# systemd로 띄운 프로세스에는 /etc/security/limits.d 설정이 적용되지 않습니다.
+# HugePages(use_large_pages=ONLY)에 필요한 memlock 한도를 여기서 직접 줍니다.
+LimitMEMLOCK=infinity
+LimitNOFILE=65536
+LimitNPROC=16384
+LimitSTACK=33554432
+
+[Install]
+WantedBy=multi-user.target

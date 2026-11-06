@@ -1,0 +1,63 @@
+---
+- name: preinstall RPM과 필요한 도구 설치 (커널 파라미터 · oracle 계정 · limits 자동 설정)
+  ansible.builtin.dnf:
+    name: [oracle-database-preinstall-19c, unzip, bc, lsof]
+    state: present
+
+- name: 시간대 Asia/Seoul
+  ansible.builtin.command: timedatectl set-timezone Asia/Seoul
+  changed_when: false
+
+# Vagrant가 hostname을 127.0.x.1에 붙여 두면 리스너·DBCA가 루프백으로 잡혀
+# 밖(DBeaver)에서 접속이 안 되거나 "No valid IP Address" 에러가 납니다 (05번 트러블슈팅)
+- name: /etc/hosts — 루프백에 붙은 호스트 이름 줄 제거
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.\S+\s.*\b{{ db_hostname }}\b'
+    state: absent
+
+- name: /etc/hosts — localhost 줄 보장
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: "{{ item.re }}"
+    line: "{{ item.line }}"
+  loop:
+    - { re: '^127\.0\.0\.1\s', line: '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4' }
+    - { re: '^::1\s', line: '::1         localhost localhost.localdomain localhost6 localhost6.localdomain6' }
+
+- name: /etc/hosts — 서비스 IP와 호스트 이름
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: '^{{ db_ip | regex_escape }}\s'
+    line: "{{ db_ip }}  {{ db_hostname }}.localdomain {{ db_hostname }}"
+
+- name: THP(Transparent HugePages) 상태 확인
+  ansible.builtin.command: grubby --info=DEFAULT
+  register: grubby_info
+  changed_when: false
+
+- name: THP 끄기 — 부팅 옵션 (UEFI·BIOS 모두 grubby로 처리)
+  ansible.builtin.command: grubby --update-kernel=ALL --args="transparent_hugepage=never"
+  when: "'transparent_hugepage=never' not in grubby_info.stdout"
+  changed_when: true
+
+- name: THP 끄기 — 지금 바로 (재부팅 전에도 적용)
+  ansible.builtin.shell: |
+    set -o pipefail
+    grep -q '\[never\]' /sys/kernel/mm/transparent_hugepage/enabled && exit 0
+    echo never > /sys/kernel/mm/transparent_hugepage/enabled
+    echo never > /sys/kernel/mm/transparent_hugepage/defrag
+    echo CHANGED
+  register: thp_now
+  changed_when: "'CHANGED' in thp_now.stdout"
+
+- name: 방화벽 — 1521(리스너) · 5500(EM Express) 열기 (방화벽을 끄지 않음)
+  ansible.builtin.shell: |
+    systemctl is-active -q firewalld || { echo "firewalld 꺼져 있음"; exit 0; }
+    changed=0
+    for p in 1521/tcp 5500/tcp; do
+      firewall-cmd -q --permanent --query-port=$p || { firewall-cmd -q --permanent --add-port=$p; changed=1; }
+    done
+    [ $changed -eq 1 ] && firewall-cmd -q --reload && echo CHANGED || true
+  register: fw
+  changed_when: "'CHANGED' in fw.stdout"

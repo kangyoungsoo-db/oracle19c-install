@@ -1,0 +1,38 @@
+---
+# ── DB 이름 (dbts93과 같게 맞춤: CDB orcl + PDB pdb) ─────────
+# SID는 반드시 소문자. 대문자로 두면 spfileORCL.ora를 찾다 ORA-01078로 기동 실패 (05번 트러블슈팅)
+oracle_sid: orcl
+pdb_name: pdb
+db_charset: AL32UTF8          # 한글 식별자·데이터 OK. 클라이언트 NLS_LANG도 AL32UTF8로
+db_password: "<비밀번호>"     # 실행 전에 직접 정한 값으로 바꾼다. 실무라면 ansible-vault 사용
+
+# ── 경로 ─────────────────────────────────────────────
+oracle_base: /u01/app/oracle
+oracle_home: /u01/app/oracle/product/19.0.0.0/dbhome_1
+oracle_inventory: /u01/app/oraInventory
+patch_dir: /u01/app/patches
+archive_dest: /backup/arch
+
+# ── 메모리 ───────────────────────────────────────────
+# DBCA -totalMemory(MB): SGA 약 75% + PGA 약 25%로 나뉩니다. VM RAM 4096MB 기준.
+# v1은 "-memoryPercentage 25"라서 VM 상태마다 SGA 크기가 달라졌습니다 → 고정값으로 변경
+total_memory_mb: 1536
+
+# ── 설치 파일 (Vagrantfile이 ../media 를 /stage 로 연결) ─────
+stage_dir: /stage
+db_zip: LINUX.X64_193000_db_home.zip
+db_zip_sha256: ba8329c757133da313ed3b6d7f86c5ac42cd9970a28bf2e6233f3235233aa8d8   # oracle.com 다운로드 페이지 값
+# 아래 두 zip이 /stage에 둘 다 있으면 설치하면서 RU를 적용합니다(-applyRU). 없으면 19.3 그대로 설치.
+ru_zip: p36912597_190000_Linux-x86-64.zip       # 19.25 DB RU (2024-10)
+ru_patch_id: "36912597"
+opatch_zip: p6880880_190000_Linux-x86-64.zip    # 최신 OPatch (RU 적용에 필요)
+
+# ── oracle 계정 셸 환경 (Ansible이 oracle로 명령을 칠 때 사용) ──
+ora_env:
+  ORACLE_BASE: "{{ oracle_base }}"
+  ORACLE_HOME: "{{ oracle_home }}"
+  ORACLE_SID: "{{ oracle_sid }}"
+  PATH: "{{ oracle_home }}/bin:{{ oracle_home }}/OPatch:/usr/bin:/bin:/usr/sbin:/sbin"
+  LD_LIBRARY_PATH: "{{ oracle_home }}/lib"
+  NLS_LANG: AMERICAN_AMERICA.AL32UTF8
+  CV_ASSUME_DISTID: OEL7.8     # 19.3 설치 프로그램이 OL8을 모르기 때문에 필요(설치 후엔 불필요)

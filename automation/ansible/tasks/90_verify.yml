@@ -1,0 +1,12 @@
+---
+- name: 점검 스크립트 실행 → D:\vagrant\oracle19c\logs\ 에 결과 저장
+  ansible.builtin.shell: |
+    set -o pipefail
+    f=/vagrant/logs/verify_$(date +%Y%m%d_%H%M%S).txt
+    bash /vagrant/scripts/check.sh | tee "$f"
+  register: verify
+  changed_when: false
+
+- name: 점검 결과
+  ansible.builtin.debug:
+    msg: "{{ verify.stdout_lines }}"

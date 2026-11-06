@@ -1,0 +1,32 @@
+== Oracle 19c 점검 2026-10-28 15:00:05 · dbts94.localdomain ==
+-- 환경
+  OS     : Oracle Linux Server release 8.10
+  커널   : 5.15.0-320.202.8.5.el8uek.x86_64
+  가동   : up 10 minutes
+-- 1. 디스크
+  [PASS] /u01 마운트 (50G)
+  [PASS] /oradata 마운트 (60G)
+  [PASS] /backup 마운트 (70G)
+-- 2. OS 설정
+  [PASS] THP 꺼짐
+  [PASS] vm.hugetlb_shm_group=54321
+  [PASS] /etc/hosts 서비스 IP 매핑
+-- 3. 소프트웨어
+  [PASS] bin/oracle 420MB
+  패치   : 29585399;OCW RELEASE UPDATE 19.3.0.0.0 (29585399) 29517242;Database Release Update : 19.3.0.0.190416 (29517242) 
+-- 4. 서비스 · 리스너
+  [PASS] oracle-db 서비스 자동 기동 등록
+  [PASS] oracle-db 서비스 실행 중
+  [PASS] 리스너에 pdb 서비스 등록
+-- 5. 데이터베이스
+  [PASS] 인스턴스 orcl OPEN
+  버전   : 19.3.0.0.0
+  [PASS] PDB READ WRITE
+  [PASS] ARCHIVELOG 모드 → /backup/arch
+  [PASS] memory_target=0 (ASMM)
+  SGA    : 1152MB
+-- 6. HugePages
+  [PASS] HugePages 사용 중 (Total 592 / Free 20, use_large_pages=ONLY)
+-- 7. 외부 접속 준비
+  [PASS] 1521 포트 대기 중
+== 결과: PASS 16 / FAIL 0 ==

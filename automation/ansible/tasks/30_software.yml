@@ -1,0 +1,92 @@
+---
+- name: 설치 파일 압축 풀기 → ORACLE_HOME (2~4분)
+  ansible.builtin.command: unzip -q -o {{ stage_dir }}/{{ db_zip }} -d {{ oracle_home }}
+  args:
+    creates: "{{ oracle_home }}/runInstaller"
+  become: true
+  become_user: oracle
+
+- name: (RU 적용 시) OPatch를 최신으로 교체 — 19.3에 든 OPatch로는 19.25를 적용할 수 없음
+  ansible.builtin.shell: |
+    set -e
+    mv {{ oracle_home }}/OPatch {{ oracle_home }}/OPatch.19.3
+    unzip -q {{ stage_dir }}/{{ opatch_zip }} -d {{ oracle_home }}
+  args:
+    creates: "{{ oracle_home }}/OPatch.19.3"
+  become: true
+  become_user: oracle
+  when: apply_ru | bool
+
+- name: (RU 적용 시) RU 압축 풀기 → {{ patch_dir }}/{{ ru_patch_id }} (3~5분)
+  ansible.builtin.command: unzip -q -o {{ stage_dir }}/{{ ru_zip }} -d {{ patch_dir }}
+  args:
+    creates: "{{ patch_dir }}/{{ ru_patch_id }}"
+  become: true
+  become_user: oracle
+  when: apply_ru | bool
+
+# 종료 코드 6 = "경고와 함께 성공" (-ignorePrereqFailure로 사전 점검 경고를 넘긴 경우) → 성공으로 처리
+- name: runInstaller — 소프트웨어만 설치 (RU 없으면 15~25분, RU 적용 시 40~60분. 화면이 멈춘 것처럼 보여도 정상)
+  ansible.builtin.shell: |
+    cd {{ oracle_home }}
+    ./runInstaller -silent -ignorePrereqFailure -waitforcompletion \
+      {{ ('-applyRU ' + patch_dir + '/' + ru_patch_id) if (apply_ru | bool) else '' }} \
+      oracle.install.option=INSTALL_DB_SWONLY \
+      ORACLE_HOSTNAME={{ db_hostname }}.localdomain \
+      UNIX_GROUP_NAME=oinstall \
+      INVENTORY_LOCATION={{ oracle_inventory }} \
+      ORACLE_HOME={{ oracle_home }} \
+      ORACLE_BASE={{ oracle_base }} \
+      oracle.install.db.InstallEdition=EE \
+      oracle.install.db.OSDBA_GROUP=dba \
+      oracle.install.db.OSOPER_GROUP=oper \
+      oracle.install.db.OSBACKUPDBA_GROUP=backupdba \
+      oracle.install.db.OSDGDBA_GROUP=dgdba \
+      oracle.install.db.OSKMDBA_GROUP=kmdba \
+      oracle.install.db.OSRACDBA_GROUP=racdba \
+      SECURITY_UPDATES_VIA_MYORACLESUPPORT=false \
+      DECLINE_SECURITY_UPDATES=true
+    rc=$?
+    if [ $rc -eq 0 ] || [ $rc -eq 6 ]; then exit 0; fi
+    echo "runInstaller 실패 (종료 코드 $rc). 로그: {{ oracle_inventory }}/logs/ 와 /tmp/InstallActions*" >&2
+    exit $rc
+  args:
+    creates: "{{ oracle_inventory }}/ContentsXML/inventory.xml"
+  environment: "{{ ora_env }}"
+  become: true
+  become_user: oracle
+
+# v1 문제 [INS-32128]: root 비밀번호가 없어 자동 실행 실패 → 여기서 root로 직접 실행
+- name: root 스크립트 — orainstRoot.sh, root.sh
+  ansible.builtin.shell: |
+    set -e
+    {{ oracle_inventory }}/orainstRoot.sh
+    {{ oracle_home }}/root.sh
+    touch {{ oracle_base }}/.root_scripts_done
+  args:
+    creates: "{{ oracle_base }}/.root_scripts_done"
+
+# v1(Rocky 9)에서 링크 실패로 0바이트가 됐던 그 파일. 정상이면 수백 MB
+- name: oracle 실행 파일이 제대로 만들어졌는지 확인
+  ansible.builtin.stat:
+    path: "{{ oracle_home }}/bin/oracle"
+  register: ora_bin
+
+- name: oracle 실행 파일 크기 검사
+  ansible.builtin.assert:
+    that: ora_bin.stat.exists and ora_bin.stat.size > 100000000
+    fail_msg: "{{ oracle_home }}/bin/oracle 이 없거나 너무 작습니다(링크 실패). {{ oracle_home }}/install/make.log 를 확인하세요."
+    success_msg: "bin/oracle {{ (ora_bin.stat.size / 1048576) | round | int }}MB — 링크 정상"
+
+- name: oracle 계정 .bash_profile 환경 변수
+  ansible.builtin.blockinfile:
+    path: /home/oracle/.bash_profile
+    marker: "# {mark} ORACLE 19c (ansible v2)"
+    block: |
+      export ORACLE_BASE={{ oracle_base }}
+      export ORACLE_HOME={{ oracle_home }}
+      export ORACLE_SID={{ oracle_sid }}        # 반드시 소문자
+      export PATH=$ORACLE_HOME/bin:$ORACLE_HOME/OPatch:$PATH
+      export LD_LIBRARY_PATH=$ORACLE_HOME/lib
+      export NLS_LANG=AMERICAN_AMERICA.AL32UTF8  # 한글 식별자 ORA-00911 방지 (05번 트러블슈팅)
+      alias sql='sqlplus / as sysdba'

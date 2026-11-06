@@ -1,0 +1,41 @@
+---
+# Oracle 19c on Oracle Linux 8 — v2
+# 순서: 설치 파일 확인 → OS → 디스크 → 소프트웨어 → 리스너 → DB 생성 → 아카이브 모드
+#       → 자동 기동(systemd) → HugePages → 점검
+# 각 단계는 다시 실행해도 안전(이미 된 단계는 건너뜀). 태그로 일부만 실행 가능.
+- name: Oracle Database 19c on Oracle Linux 8
+  hosts: all
+  become: true
+  vars_files:
+    - vars.yml
+  tasks:
+    - name: 00 설치 파일 확인
+      ansible.builtin.import_tasks: tasks/00_media.yml
+      tags: [media, always]
+    - name: 10 OS 준비
+      ansible.builtin.import_tasks: tasks/10_os.yml
+      tags: [os]
+    - name: 20 디스크 · LVM
+      ansible.builtin.import_tasks: tasks/20_disks.yml
+      tags: [disks]
+    - name: 30 Oracle 소프트웨어 설치
+      ansible.builtin.import_tasks: tasks/30_software.yml
+      tags: [software]
+    - name: 40 리스너
+      ansible.builtin.import_tasks: tasks/40_listener.yml
+      tags: [listener]
+    - name: 50 DB 생성 (DBCA)
+      ansible.builtin.import_tasks: tasks/50_dbca.yml
+      tags: [dbca]
+    - name: 55 아카이브 로그 모드
+      ansible.builtin.import_tasks: tasks/55_archivelog.yml
+      tags: [archivelog]
+    - name: 60 자동 기동 (oratab + systemd)
+      ansible.builtin.import_tasks: tasks/60_autostart.yml
+      tags: [autostart]
+    - name: 70 HugePages
+      ansible.builtin.import_tasks: tasks/70_hugepages.yml
+      tags: [hugepages]
+    - name: 90 점검
+      ansible.builtin.import_tasks: tasks/90_verify.yml
+      tags: [verify]

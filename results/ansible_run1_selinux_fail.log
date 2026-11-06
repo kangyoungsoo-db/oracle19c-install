@@ -1,0 +1,233 @@
+2026-10-28 01:54:47,014 p=16779 u=vagrant n=ansible | PLAY [Oracle Database 19c on Oracle Linux 8] ***********************************
+2026-10-28 01:54:47,021 p=16779 u=vagrant n=ansible | TASK [Gathering Facts] *********************************************************
+2026-10-28 01:54:48,330 p=16779 u=vagrant n=ansible | ok: [dbts94]
+2026-10-28 01:54:48,347 p=16779 u=vagrant n=ansible | TASK [설치 파일(LINUX.X64_193000_db_home.zip) 확인 · SHA256 계산 (30초~1분)] ***
+2026-10-28 01:54:52,015 p=16779 u=vagrant n=ansible | ok: [dbts94]
+2026-10-28 01:54:52,021 p=16779 u=vagrant n=ansible | TASK [설치 파일이 있고 손상되지 않았는지 확인] *********************************
+2026-10-28 01:54:52,034 p=16779 u=vagrant n=ansible | ok: [dbts94] => 
+    changed: false
+    msg: 설치 파일 OK (SHA256 일치)
+
+2026-10-28 01:54:52,040 p=16779 u=vagrant n=ansible | TASK [RU · OPatch zip 확인] ****************************************************
+2026-10-28 01:54:52,262 p=16779 u=vagrant n=ansible | ok: [dbts94] => (item=p36912597_190000_Linux-x86-64.zip)
+2026-10-28 01:54:52,472 p=16779 u=vagrant n=ansible | ok: [dbts94] => (item=p6880880_190000_Linux-x86-64.zip)
+2026-10-28 01:54:52,480 p=16779 u=vagrant n=ansible | TASK [설치 방식 결정] **********************************************************
+2026-10-28 01:54:52,510 p=16779 u=vagrant n=ansible | ok: [dbts94]
+2026-10-28 01:54:52,516 p=16779 u=vagrant n=ansible | TASK [설치 방식 안내] **********************************************************
+2026-10-28 01:54:52,527 p=16779 u=vagrant n=ansible | ok: [dbts94] => 
+    msg: RU zip이 없어 base 19.3으로 설치합니다 → 설치·학습은 가능하지만 OL8(UEK7)에서는 Oracle 비지원 조합
+
+2026-10-28 01:54:52,531 p=16779 u=vagrant n=ansible | TASK [preinstall RPM과 필요한 도구 설치 (커널 파라미터 · oracle 계정 · limits 자동 설정)] ***
+2026-10-28 01:55:19,798 p=16779 u=vagrant n=ansible | changed: [dbts94]
+2026-10-28 01:55:19,804 p=16779 u=vagrant n=ansible | TASK [시간대 Asia/Seoul] *******************************************************
+2026-10-28 01:55:20,266 p=16779 u=vagrant n=ansible | ok: [dbts94]
+2026-10-28 01:55:20,270 p=16779 u=vagrant n=ansible | TASK [/etc/hosts — 루프백에 붙은 호스트 이름 줄 제거] **************************
+2026-10-28 01:55:20,586 p=16779 u=vagrant n=ansible | changed: [dbts94]
+2026-10-28 01:55:20,594 p=16779 u=vagrant n=ansible | TASK [/etc/hosts — localhost 줄 보장] ******************************************
+2026-10-28 01:55:20,832 p=16779 u=vagrant n=ansible | ok: [dbts94] => (item={'re': '^127\\.0\\.0\\.1\\s', 'line': '127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4'})
+2026-10-28 01:55:21,049 p=16779 u=vagrant n=ansible | ok: [dbts94] => (item={'re': '^::1\\s', 'line': '::1         localhost localhost.localdomain localhost6 localhost6.localdomain6'})
+2026-10-28 01:55:21,056 p=16779 u=vagrant n=ansible | TASK [/etc/hosts — 서비스 IP와 호스트 이름] ************************************
+2026-10-28 01:55:21,291 p=16779 u=vagrant n=ansible | changed: [dbts94]
+2026-10-28 01:55:21,295 p=16779 u=vagrant n=ansible | TASK [THP(Transparent HugePages) 상태 확인] ************************************
+2026-10-28 01:55:21,568 p=16779 u=vagrant n=ansible | ok: [dbts94]
+2026-10-28 01:55:21,578 p=16779 u=vagrant n=ansible | TASK [THP 끄기 — 부팅 옵션 (UEFI·BIOS 모두 grubby로 처리)] *********************
+2026-10-28 01:55:21,591 p=16779 u=vagrant n=ansible | skipping: [dbts94]
+2026-10-28 01:55:21,600 p=16779 u=vagrant n=ansible | TASK [THP 끄기 — 지금 바로 (재부팅 전에도 적용)] *******************************
+2026-10-28 01:55:21,852 p=16779 u=vagrant n=ansible | ok: [dbts94]
+2026-10-28 01:55:21,859 p=16779 u=vagrant n=ansible | TASK [방화벽 — 1521(리스너) · 5500(EM Express) 열기 (방화벽을 끄지 않음)] ******
+2026-10-28 01:55:22,116 p=16779 u=vagrant n=ansible | ok: [dbts94]
+2026-10-28 01:55:22,122 p=16779 u=vagrant n=ansible | TASK [디스크 → VG → LV → xfs → 마운트 ({{ item.key }}, {{ item.value }}GB)] ****
+2026-10-28 01:55:22,860 p=16779 u=vagrant n=ansible | changed: [dbts94] => (item={'key': 'u01', 'value': 50})
+2026-10-28 01:55:23,581 p=16779 u=vagrant n=ansible | changed: [dbts94] => (item={'key': 'oradata', 'value': 60})
+2026-10-28 01:55:24,287 p=16779 u=vagrant n=ansible | changed: [dbts94] => (item={'key': 'backup', 'value': 70})
+2026-10-28 01:55:24,296 p=16779 u=vagrant n=ansible | TASK [Oracle 디렉터리 만들기] **************************************************
+2026-10-28 01:55:24,489 p=16779 u=vagrant n=ansible | changed: [dbts94] => (item=/u01)
+2026-10-28 01:55:24,700 p=16779 u=vagrant n=ansible | changed: [dbts94] => (item=/u01/app)
+2026-10-28 01:55:24,924 p=16779 u=vagrant n=ansible | changed: [dbts94] => (item=/u01/app/oracle)
+2026-10-28 01:55:25,072 p=16779 u=vagrant n=ansible | changed: [dbts94] => (item=/u01/app/oracle/product/19.0.0.0/dbhome_1)
+2026-10-28 01:55:25,297 p=16779 u=vagrant n=ansible | changed: [dbts94] => (item=/u01/app/oraInventory)
+2026-10-28 01:55:25,523 p=16779 u=vagrant n=ansible | changed: [dbts94] => (item=/u01/app/patches)
+2026-10-28 01:55:25,725 p=16779 u=vagrant n=ansible | changed: [dbts94] => (item=/oradata)
+2026-10-28 01:55:25,956 p=16779 u=vagrant n=ansible | changed: [dbts94] => (item=/backup)
+2026-10-28 01:55:26,177 p=16779 u=vagrant n=ansible | changed: [dbts94] => (item=/backup/arch)
+2026-10-28 01:55:26,413 p=16779 u=vagrant n=ansible | changed: [dbts94] => (item=/backup/rman)
+2026-10-28 01:55:26,420 p=16779 u=vagrant n=ansible | TASK [설치 파일 압축 풀기 → ORACLE_HOME (2~4분)] *******************************
+2026-10-28 01:56:59,523 p=16779 u=vagrant n=ansible | changed: [dbts94]
+2026-10-28 01:56:59,533 p=16779 u=vagrant n=ansible | TASK [(RU 적용 시) OPatch를 최신으로 교체 — 19.3에 든 OPatch로는 19.25를 적용할 수 없음] ***
+2026-10-28 01:56:59,615 p=16779 u=vagrant n=ansible | skipping: [dbts94]
+2026-10-28 01:56:59,624 p=16779 u=vagrant n=ansible | TASK [(RU 적용 시) RU 압축 풀기 → /u01/app/patches/36912597 (3~5분)] ***********
+2026-10-28 01:56:59,648 p=16779 u=vagrant n=ansible | skipping: [dbts94]
+2026-10-28 01:56:59,656 p=16779 u=vagrant n=ansible | TASK [runInstaller — 소프트웨어만 설치 (RU 없으면 15~25분, RU 적용 시 40~60분. 화면이 멈춘 것처럼 보여도 정상)] ***
+2026-10-28 01:58:51,245 p=16779 u=vagrant n=ansible | changed: [dbts94]
+2026-10-28 01:58:51,254 p=16779 u=vagrant n=ansible | TASK [root 스크립트 — orainstRoot.sh, root.sh] *********************************
+2026-10-28 01:58:52,527 p=16779 u=vagrant n=ansible | changed: [dbts94]
+2026-10-28 01:58:52,530 p=16779 u=vagrant n=ansible | TASK [oracle 실행 파일이 제대로 만들어졌는지 확인] *****************************
+2026-10-28 01:58:53,042 p=16779 u=vagrant n=ansible | ok: [dbts94]
+2026-10-28 01:58:53,049 p=16779 u=vagrant n=ansible | TASK [oracle 실행 파일 크기 검사] **********************************************
+2026-10-28 01:58:53,075 p=16779 u=vagrant n=ansible | ok: [dbts94] => 
+    changed: false
+    msg: bin/oracle 421MB — 링크 정상
+
+2026-10-28 01:58:53,080 p=16779 u=vagrant n=ansible | TASK [oracle 계정 .bash_profile 환경 변수] *************************************
+2026-10-28 01:58:53,491 p=16779 u=vagrant n=ansible | changed: [dbts94]
+2026-10-28 01:58:53,506 p=16779 u=vagrant n=ansible | TASK [listener.ora · sqlnet.ora · tnsnames.ora] ********************************
+2026-10-28 01:58:53,988 p=16779 u=vagrant n=ansible | changed: [dbts94] => (item=listener.ora)
+2026-10-28 01:58:54,405 p=16779 u=vagrant n=ansible | changed: [dbts94] => (item=sqlnet.ora)
+2026-10-28 01:58:54,834 p=16779 u=vagrant n=ansible | changed: [dbts94] => (item=tnsnames.ora)
+2026-10-28 01:58:54,839 p=16779 u=vagrant n=ansible | TASK [리스너 시작 (이미 떠 있으면 그대로)] *************************************
+2026-10-28 01:58:55,758 p=16779 u=vagrant n=ansible | changed: [dbts94]
+2026-10-28 01:58:55,765 p=16779 u=vagrant n=ansible | TASK [DBCA — CDB orcl + PDB pdb 만들기 (20~40분)] ******************************
+2026-10-28 02:15:41,170 p=16779 u=vagrant n=ansible | changed: [dbts94]
+2026-10-28 02:15:41,623 p=16779 u=vagrant n=ansible | TASK [DB 생성 후 설정 — PDB 자동 OPEN(SAVE STATE), 리스너 등록, AMM 꺼짐 확인] ***
+2026-10-28 02:15:44,659 p=16779 u=vagrant n=ansible | ok: [dbts94]
+2026-10-28 02:15:44,763 p=16779 u=vagrant n=ansible | TASK [AMM이 아닌지 확인 (memory_target=0 이어야 HugePages 사용 가능)] **********
+2026-10-28 02:15:45,054 p=16779 u=vagrant n=ansible | ok: [dbts94] => 
+    changed: false
+    msg: ASMM(sga_target) 확인
+
+2026-10-28 02:15:45,065 p=16779 u=vagrant n=ansible | TASK [현재 로그 모드 확인] *****************************************************
+2026-10-28 02:15:46,639 p=16779 u=vagrant n=ansible | ok: [dbts94]
+2026-10-28 02:15:46,694 p=16779 u=vagrant n=ansible | TASK [ARCHIVELOG 모드로 전환 (아카이브 위치 /backup/arch)] *********************
+2026-10-28 02:16:35,110 p=16779 u=vagrant n=ansible | changed: [dbts94]
+2026-10-28 02:16:35,743 p=16779 u=vagrant n=ansible | TASK [/etc/oratab — 자동 기동 대상 표시(Y)] ************************************
+2026-10-28 02:16:36,907 p=16779 u=vagrant n=ansible | changed: [dbts94]
+2026-10-28 02:16:37,772 p=16779 u=vagrant n=ansible | TASK [systemd 서비스 파일 oracle-db.service] ***********************************
+2026-10-28 02:16:42,471 p=16779 u=vagrant n=ansible | changed: [dbts94]
+2026-10-28 02:16:42,505 p=16779 u=vagrant n=ansible | TASK [서비스 등록 (부팅 시 자동 기동)] *****************************************
+2026-10-28 02:16:45,923 p=16779 u=vagrant n=ansible | changed: [dbts94]
+2026-10-28 02:16:45,931 p=16779 u=vagrant n=ansible | TASK [서비스 상태 확인] ********************************************************
+2026-10-28 02:16:46,174 p=16779 u=vagrant n=ansible | ok: [dbts94]
+2026-10-28 02:16:46,192 p=16779 u=vagrant n=ansible | TASK [수동으로 띄운 DB · 리스너를 내리고 systemd로 다시 시작] ******************
+2026-10-28 02:17:42,521 p=16779 u=vagrant n=ansible | fatal: [dbts94]: FAILED! => 
+    changed: true
+    cmd: |-
+        set -eo pipefail
+        su - oracle -c "echo 'shutdown immediate' | sqlplus -s / as sysdba; lsnrctl stop" || true
+        systemctl start oracle-db
+    delta: '0:00:56.013272'
+    end: '2026-10-28 11:17:42.423578'
+    msg: non-zero return code
+    rc: 1
+    start: '2026-10-28 11:16:46.410306'
+    stderr: |-
+        Job for oracle-db.service failed because the control process exited with error code.
+        See "systemctl status oracle-db.service" and "journalctl -xe" for details.
+    stderr_lines: <omitted>
+    stdout: |-
+        Database closed.
+        Database dismounted.
+        ORACLE instance shut down.
+
+        LSNRCTL for Linux: Version 19.0.0.0.0 - Production on 28-OCT-2026 11:17:42
+
+        Copyright (c) 1991, 2019, Oracle.  All rights reserved.
+
+        Connecting to (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=0.0.0.0)(PORT=1521)))
+        The command completed successfully
+    stdout_lines: <omitted>
+
+2026-10-28 02:17:42,611 p=16779 u=vagrant n=ansible | PLAY RECAP *********************************************************************
+2026-10-28 02:17:42,623 p=16779 u=vagrant n=ansible | dbts94                     : ok=33   changed=16   unreachable=0    failed=1    skipped=3    rescued=0    ignored=0   
+2026-10-28 14:39:11,910 p=41951 u=vagrant n=ansible | PLAY [Oracle Database 19c on Oracle Linux 8] ***********************************
+2026-10-28 14:39:11,926 p=41951 u=vagrant n=ansible | TASK [Gathering Facts] *********************************************************
+2026-10-28 14:39:13,302 p=41951 u=vagrant n=ansible | ok: [dbts94]
+2026-10-28 14:39:13,315 p=41951 u=vagrant n=ansible | TASK [설치 파일(LINUX.X64_193000_db_home.zip) 확인 · SHA256 계산 (30초~1분)] ***
+2026-10-28 14:39:13,327 p=41951 u=vagrant n=ansible | skipping: [dbts94]
+2026-10-28 14:39:13,332 p=41951 u=vagrant n=ansible | TASK [설치 파일이 있고 손상되지 않았는지 확인] *********************************
+2026-10-28 14:39:13,342 p=41951 u=vagrant n=ansible | skipping: [dbts94]
+2026-10-28 14:39:13,346 p=41951 u=vagrant n=ansible | TASK [RU · OPatch zip 확인] ****************************************************
+2026-10-28 14:39:13,649 p=41951 u=vagrant n=ansible | ok: [dbts94] => (item=p36912597_190000_Linux-x86-64.zip)
+2026-10-28 14:39:13,861 p=41951 u=vagrant n=ansible | ok: [dbts94] => (item=p6880880_190000_Linux-x86-64.zip)
+2026-10-28 14:39:13,868 p=41951 u=vagrant n=ansible | TASK [설치 방식 결정] **********************************************************
+2026-10-28 14:39:13,931 p=41951 u=vagrant n=ansible | ok: [dbts94]
+2026-10-28 14:39:13,935 p=41951 u=vagrant n=ansible | TASK [설치 방식 안내] **********************************************************
+2026-10-28 14:39:13,949 p=41951 u=vagrant n=ansible | ok: [dbts94] => 
+    msg: RU zip이 없어 base 19.3으로 설치합니다 → 설치·학습은 가능하지만 OL8(UEK7)에서는 Oracle 비지원 조합
+
+2026-10-28 14:39:13,956 p=41951 u=vagrant n=ansible | TASK [SELinux 라벨 정리 — /u01 · /oradata · /backup (unlabeled_t 제거, 1분 내외)] ***
+2026-10-28 14:39:16,784 p=41951 u=vagrant n=ansible | changed: [dbts94]
+2026-10-28 14:39:16,789 p=41951 u=vagrant n=ansible | TASK [/etc/oratab — 자동 기동 대상 표시(Y)] ************************************
+2026-10-28 14:39:17,157 p=41951 u=vagrant n=ansible | ok: [dbts94]
+2026-10-28 14:39:17,162 p=41951 u=vagrant n=ansible | TASK [systemd 서비스 파일 oracle-db.service] ***********************************
+2026-10-28 14:39:17,722 p=41951 u=vagrant n=ansible | changed: [dbts94]
+2026-10-28 14:39:17,730 p=41951 u=vagrant n=ansible | TASK [서비스 등록 (부팅 시 자동 기동)] *****************************************
+2026-10-28 14:39:18,512 p=41951 u=vagrant n=ansible | ok: [dbts94]
+2026-10-28 14:39:18,520 p=41951 u=vagrant n=ansible | TASK [서비스 상태 확인] ********************************************************
+2026-10-28 14:39:18,754 p=41951 u=vagrant n=ansible | ok: [dbts94]
+2026-10-28 14:39:18,762 p=41951 u=vagrant n=ansible | TASK [수동으로 띄운 DB · 리스너를 내리고 systemd로 다시 시작] ******************
+2026-10-28 14:39:31,737 p=41951 u=vagrant n=ansible | changed: [dbts94]
+2026-10-28 14:39:31,745 p=41951 u=vagrant n=ansible | TASK [서비스가 실제로 떴는지 확인 (실패하면 journalctl -u oracle-db 로 원인 확인)] ***
+2026-10-28 14:39:32,161 p=41951 u=vagrant n=ansible | ok: [dbts94]
+2026-10-28 14:39:32,175 p=41951 u=vagrant n=ansible | TASK [SELinux 상태 기록 (enforcing에서도 위 서비스가 떠야 정상)] ***************
+2026-10-28 14:39:32,709 p=41951 u=vagrant n=ansible | ok: [dbts94]
+2026-10-28 14:39:32,722 p=41951 u=vagrant n=ansible | TASK [SELinux 상태] ************************************************************
+2026-10-28 14:39:32,747 p=41951 u=vagrant n=ansible | ok: [dbts94] => 
+    msg: SELinux Enforcing · oracle-db active
+
+2026-10-28 14:39:32,760 p=41951 u=vagrant n=ansible | TASK [현재 HugePages 사용 여부 확인] *******************************************
+2026-10-28 14:39:34,116 p=41951 u=vagrant n=ansible | ok: [dbts94]
+2026-10-28 14:39:34,135 p=41951 u=vagrant n=ansible | TASK [필요한 페이지 수 계산 (2MB 페이지, SGA + 여유 16장)] *********************
+2026-10-28 14:39:34,243 p=41951 u=vagrant n=ansible | ok: [dbts94]
+2026-10-28 14:39:34,266 p=41951 u=vagrant n=ansible | TASK [커널 설정 파일 (vm.hugetlb_shm_group = oinstall gid, 없으면 ORA-27125)] ***
+2026-10-28 14:39:35,031 p=41951 u=vagrant n=ansible | changed: [dbts94]
+2026-10-28 14:39:35,052 p=41951 u=vagrant n=ansible | TASK [use_large_pages=ONLY (HugePages를 못 잡으면 기동하지 않음 → 조용히 실패하지 않게)] ***
+2026-10-28 14:39:36,608 p=41951 u=vagrant n=ansible | changed: [dbts94]
+2026-10-28 14:39:36,620 p=41951 u=vagrant n=ansible | TASK [DB 정지] *****************************************************************
+2026-10-28 14:40:39,666 p=41951 u=vagrant n=ansible | changed: [dbts94]
+2026-10-28 14:40:39,670 p=41951 u=vagrant n=ansible | TASK [메모리 정리 후 HugePages 예약 (단편화로 덜 잡히는 문제 방지)] ************
+2026-10-28 14:40:41,052 p=41951 u=vagrant n=ansible | changed: [dbts94]
+2026-10-28 14:40:41,177 p=41951 u=vagrant n=ansible | TASK [예약된 페이지 수 확인] ***************************************************
+2026-10-28 14:40:41,309 p=41951 u=vagrant n=ansible | ok: [dbts94] => 
+    changed: false
+    msg: All assertions passed
+
+2026-10-28 14:40:41,313 p=41951 u=vagrant n=ansible | TASK [DB 기동 (systemd)] *******************************************************
+2026-10-28 14:41:13,175 p=41951 u=vagrant n=ansible | changed: [dbts94]
+2026-10-28 14:41:13,186 p=41951 u=vagrant n=ansible | TASK [Oracle이 HugePages를 실제로 쓰는지 확인] *********************************
+2026-10-28 14:41:13,778 p=41951 u=vagrant n=ansible | ok: [dbts94]
+2026-10-28 14:41:13,787 p=41951 u=vagrant n=ansible | TASK [HugePages 사용 판정] *****************************************************
+2026-10-28 14:41:13,828 p=41951 u=vagrant n=ansible | ok: [dbts94] => 
+    changed: false
+    msg: HugePages Total/Free = 592 21 — 사용 중
+
+2026-10-28 14:41:13,852 p=41951 u=vagrant n=ansible | TASK [점검 스크립트 실행 → D:\vagrant\oracle19c\logs\ 에 결과 저장] ************
+2026-10-28 14:41:26,446 p=41951 u=vagrant n=ansible | ok: [dbts94]
+2026-10-28 14:41:26,454 p=41951 u=vagrant n=ansible | TASK [점검 결과] ***************************************************************
+2026-10-28 14:41:26,471 p=41951 u=vagrant n=ansible | ok: [dbts94] => 
+    msg:
+    - == Oracle 19c 점검 2026-10-28 14:41:14 · dbts94.localdomain ==
+    - -- 환경
+    - '  OS     : Oracle Linux Server release 8.10'
+    - '  커널   : 5.15.0-320.202.8.5.el8uek.x86_64'
+    - '  가동   : up 3 hours, 48 minutes'
+    - -- 1. 디스크
+    - '  [PASS] /u01 마운트 (50G)'
+    - '  [PASS] /oradata 마운트 (60G)'
+    - '  [PASS] /backup 마운트 (70G)'
+    - -- 2. OS 설정
+    - '  [PASS] THP 꺼짐'
+    - '  [PASS] vm.hugetlb_shm_group=54321'
+    - '  [PASS] /etc/hosts 서비스 IP 매핑'
+    - -- 3. 소프트웨어
+    - '  [PASS] bin/oracle 420MB'
+    - '  패치   : 29585399;OCW RELEASE UPDATE 19.3.0.0.0 (29585399) 29517242;Database Release
+        Update : 19.3.0.0.190416 (29517242) '
+    - -- 4. 서비스 · 리스너
+    - '  [PASS] oracle-db 서비스 자동 기동 등록'
+    - '  [PASS] oracle-db 서비스 실행 중'
+    - '  [PASS] 리스너에 pdb 서비스 등록'
+    - -- 5. 데이터베이스
+    - '  [PASS] 인스턴스 orcl OPEN'
+    - '  버전   : 19.3.0.0.0'
+    - '  [PASS] PDB READ WRITE'
+    - '  [PASS] ARCHIVELOG 모드 → /backup/arch'
+    - '  [PASS] memory_target=0 (ASMM)'
+    - '  SGA    : 1152MB'
+    - -- 6. HugePages
+    - '  [PASS] HugePages 사용 중 (Total 592 / Free 20, use_large_pages=ONLY)'
+    - -- 7. 외부 접속 준비
+    - '  [PASS] 1521 포트 대기 중'
+    - '== 결과: PASS 16 / FAIL 0 =='
+
+2026-10-28 14:41:26,492 p=41951 u=vagrant n=ansible | PLAY RECAP *********************************************************************
+2026-10-28 14:41:26,492 p=41951 u=vagrant n=ansible | dbts94                     : ok=25   changed=8    unreachable=0    failed=0    skipped=2    rescued=0    ignored=0   

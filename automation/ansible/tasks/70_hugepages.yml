@@ -1,0 +1,80 @@
+---
+# 순서가 핵심입니다 (v1 문제 M7):
+#   ① ASMM 확인(50단계) → ② SGA 크기에서 페이지 수 계산 → ③ DB 정지 → ④ 커널에 예약
+#   → ⑤ use_large_pages=ONLY → ⑥ systemd로 기동 → ⑦ 실제로 쓰는지 확인
+- name: 현재 HugePages 사용 여부 확인
+  ansible.builtin.shell: |
+    set -o pipefail
+    echo "set heading off feedback off pagesize 0
+    select value from v\$parameter where name='use_large_pages';
+    select value from v\$parameter where name='sga_max_size';" | sqlplus -s / as sysdba | tr -s ' \n' ' '
+  environment: "{{ ora_env }}"
+  become: true
+  become_user: oracle
+  register: hp_param
+  changed_when: false
+
+- name: 필요한 페이지 수 계산 (2MB 페이지, SGA + 여유 16장)
+  ansible.builtin.set_fact:
+    hp_done: "{{ hp_param.stdout.split()[0] | upper == 'ONLY' }}"
+    hp_pages: "{{ ((hp_param.stdout.split()[1] | int) / 2097152) | round(0, 'ceil') | int + 16 }}"
+
+- name: HugePages 설정
+  when: not (hp_done | bool)
+  block:
+    - name: 커널 설정 파일 (vm.hugetlb_shm_group = oinstall gid, 없으면 ORA-27125)
+      ansible.builtin.copy:
+        dest: /etc/sysctl.d/99-oracle-hugepages.conf
+        mode: "0644"
+        content: |
+          # Oracle SGA {{ hp_param.stdout.split()[1] | int // 1048576 }}MB → 2MB × {{ hp_pages }}
+          vm.nr_hugepages = {{ hp_pages }}
+          vm.hugetlb_shm_group = 54321
+
+    - name: use_large_pages=ONLY (HugePages를 못 잡으면 기동하지 않음 → 조용히 실패하지 않게)
+      ansible.builtin.shell: |
+        set -o pipefail
+        echo "alter system set use_large_pages='ONLY' scope=spfile;" | sqlplus -s / as sysdba
+      environment: "{{ ora_env }}"
+      become: true
+      become_user: oracle
+      changed_when: true
+
+    - name: DB 정지
+      ansible.builtin.systemd:
+        name: oracle-db
+        state: stopped
+
+    - name: 메모리 정리 후 HugePages 예약 (단편화로 덜 잡히는 문제 방지)
+      ansible.builtin.shell: |
+        sync
+        echo 3 > /proc/sys/vm/drop_caches
+        echo 1 > /proc/sys/vm/compact_memory
+        sysctl -q -p /etc/sysctl.d/99-oracle-hugepages.conf
+        awk '/HugePages_Total/{print $2}' /proc/meminfo
+      register: hp_total
+      changed_when: true
+
+    - name: 예약된 페이지 수 확인
+      ansible.builtin.assert:
+        that: hp_total.stdout | int >= hp_pages | int
+        fail_msg: >-
+          HugePages {{ hp_pages }}장이 필요한데 {{ hp_total.stdout }}장만 잡혔습니다.
+          VM을 재부팅(vagrant reload)하면 부팅 때 먼저 예약되어 해결됩니다.
+          그다음 $env:ORA_TAGS="hugepages,verify"; vagrant provision --provision-with oracle
+
+    - name: DB 기동 (systemd)
+      ansible.builtin.systemd:
+        name: oracle-db
+        state: started
+
+- name: Oracle이 HugePages를 실제로 쓰는지 확인
+  ansible.builtin.shell: awk '/HugePages_Total/{t=$2} /HugePages_Free/{f=$2} END{print t, f}' /proc/meminfo
+  register: hp_now
+  changed_when: false
+
+- name: HugePages 사용 판정
+  ansible.builtin.assert:
+    that: (hp_now.stdout.split()[0] | int) > 0 and (hp_now.stdout.split()[1] | int) < (hp_now.stdout.split()[0] | int)
+    fail_msg: "HugePages Total/Free = {{ hp_now.stdout }} — Oracle이 쓰지 않고 있습니다."
+    success_msg: "HugePages Total/Free = {{ hp_now.stdout }} — 사용 중"

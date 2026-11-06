@@ -1,0 +1,27 @@
+---
+# 디스크를 /dev/sdb 같은 이름이 아니라 "크기"로 찾습니다 (v1 문제 E10: 장치 이름은 고정이 아님).
+# Vagrantfile의 DISKS = { u01: 50, oradata: 60, backup: 70 } (GB)
+- name: 디스크 → VG → LV → xfs → 마운트 ({{ item.key }}, {{ item.value }}GB)
+  ansible.builtin.script: "files/setup_disk.sh {{ item.key }} {{ item.value }}"
+  loop: "{{ disk_sizes_gb | dict2items }}"
+  register: disk_result
+  changed_when: "'CHANGED' in disk_result.stdout"
+
+- name: Oracle 디렉터리 만들기
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: oracle
+    group: oinstall
+    mode: "0775"
+  loop:
+    - /u01
+    - /u01/app
+    - "{{ oracle_base }}"
+    - "{{ oracle_home }}"
+    - "{{ oracle_inventory }}"
+    - "{{ patch_dir }}"
+    - /oradata
+    - /backup
+    - "{{ archive_dest }}"
+    - /backup/rman

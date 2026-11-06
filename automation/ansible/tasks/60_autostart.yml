@@ -1,0 +1,60 @@
+---
+# v1 문제 M14: 재부팅하면 리스너·DB가 안 올라와 ORA-12541, PDB가 MOUNTED라 ORA-01109
+# 2026-10-28 실측: SELinux enforcing + 라벨 없는(unlabeled_t) /u01 → systemd가 dbstart 실행 거부(203/EXEC)
+- name: SELinux 라벨 정리 — /u01 · /oradata · /backup (unlabeled_t 제거, 1분 내외)
+  ansible.builtin.shell: |
+    set -o pipefail
+    selinuxenabled || exit 0
+    out=$(restorecon -R -v /u01 /oradata /backup | wc -l)
+    [ "$out" -gt 0 ] && echo "CHANGED $out files" || true
+  register: relabel
+  changed_when: "'CHANGED' in relabel.stdout"
+
+- name: /etc/oratab — 자동 기동 대상 표시(Y)
+  ansible.builtin.lineinfile:
+    path: /etc/oratab
+    regexp: '^{{ oracle_sid }}:'
+    line: "{{ oracle_sid }}:{{ oracle_home }}:Y"
+
+- name: systemd 서비스 파일 oracle-db.service
+  ansible.builtin.template:
+    src: templates/oracle-db.service.j2
+    dest: /etc/systemd/system/oracle-db.service
+    mode: "0644"
+  register: unit
+
+- name: 서비스 등록 (부팅 시 자동 기동)
+  ansible.builtin.systemd:
+    name: oracle-db
+    enabled: true
+    daemon_reload: "{{ unit.changed }}"
+
+# DBCA가 띄운 인스턴스는 systemd 밖에서 돌고 있으므로 한 번 내리고 systemd로 다시 올림
+- name: 서비스 상태 확인
+  ansible.builtin.command: systemctl is-active oracle-db
+  register: svc
+  changed_when: false
+  failed_when: false
+
+- name: 수동으로 띄운 DB · 리스너를 내리고 systemd로 다시 시작
+  ansible.builtin.shell: |
+    set -eo pipefail
+    su - oracle -c "echo 'shutdown immediate' | sqlplus -s / as sysdba; lsnrctl stop" || true
+    systemctl restart oracle-db
+  when: svc.stdout != 'active' or unit.changed
+  changed_when: true
+
+- name: 서비스가 실제로 떴는지 확인 (실패하면 journalctl -u oracle-db 로 원인 확인)
+  ansible.builtin.command: systemctl is-active oracle-db
+  register: svc_after
+  changed_when: false
+  failed_when: svc_after.stdout != 'active'
+
+- name: SELinux 상태 기록 (enforcing에서도 위 서비스가 떠야 정상)
+  ansible.builtin.command: getenforce
+  register: selinux_mode
+  changed_when: false
+
+- name: SELinux 상태
+  ansible.builtin.debug:
+    msg: "SELinux {{ selinux_mode.stdout }} · oracle-db {{ svc_after.stdout }}"

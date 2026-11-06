@@ -1,0 +1,35 @@
+---
+- name: 설치 파일(LINUX.X64_193000_db_home.zip) 확인 · SHA256 계산 (30초~1분)
+  ansible.builtin.stat:
+    path: "{{ stage_dir }}/{{ db_zip }}"
+    get_checksum: true
+    checksum_algorithm: sha256
+  register: db_zip_stat
+  when: not (oracle_home + '/bin/oracle') is file
+
+- name: 설치 파일이 있고 손상되지 않았는지 확인
+  ansible.builtin.assert:
+    that:
+      - db_zip_stat.stat.exists
+      - db_zip_stat.stat.checksum == db_zip_sha256
+    fail_msg: >-
+      {{ stage_dir }}/{{ db_zip }} 이(가) 없거나 SHA256이 다릅니다.
+      Windows의 D:\vagrant\media\ 에 파일을 두었는지, oracle.com에서 받은 값과 같은지 확인하세요.
+    success_msg: "설치 파일 OK (SHA256 일치)"
+  when: db_zip_stat is not skipped
+
+- name: RU · OPatch zip 확인
+  ansible.builtin.stat:
+    path: "{{ stage_dir }}/{{ item }}"
+  loop: ["{{ ru_zip }}", "{{ opatch_zip }}"]
+  register: patch_zips
+
+- name: 설치 방식 결정
+  ansible.builtin.set_fact:
+    apply_ru: "{{ patch_zips.results | map(attribute='stat.exists') | min }}"
+
+- name: 설치 방식 안내
+  ansible.builtin.debug:
+    msg: >-
+      {{ '19.25 RU를 설치하면서 적용합니다 (-applyRU) → Oracle 지원 조합' if apply_ru
+         else 'RU zip이 없어 base 19.3으로 설치합니다 → 설치·학습은 가능하지만 OL8(UEK7)에서는 Oracle 비지원 조합' }}

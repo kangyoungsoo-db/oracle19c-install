@@ -1,0 +1,12 @@
+# {{ ansible_managed }}
+{{ oracle_sid | upper }} =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = {{ db_ip }})(PORT = 1521))
+    (CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = {{ oracle_sid }}))
+  )
+
+{{ pdb_name | upper }} =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = TCP)(HOST = {{ db_ip }})(PORT = 1521))
+    (CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = {{ pdb_name }}))
+  )

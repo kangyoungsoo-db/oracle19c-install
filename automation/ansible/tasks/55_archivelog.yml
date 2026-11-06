@@ -1,0 +1,31 @@
+---
+# 그림책 20장: 꽉 찬 리두 그룹을 ARCn이 /backup/arch 로 복사
+- name: 현재 로그 모드 확인
+  ansible.builtin.shell: |
+    set -o pipefail
+    echo "set heading off feedback off pagesize 0
+    select log_mode from v\$database;" | sqlplus -s / as sysdba | tr -d ' \n'
+  environment: "{{ ora_env }}"
+  become: true
+  become_user: oracle
+  register: logmode
+  changed_when: false
+
+- name: ARCHIVELOG 모드로 전환 (아카이브 위치 {{ archive_dest }})
+  ansible.builtin.shell: |
+    sqlplus -s / as sysdba <<'SQL'
+    whenever sqlerror exit failure
+    alter system set log_archive_dest_1='LOCATION={{ archive_dest }}' scope=spfile;
+    shutdown immediate
+    startup mount
+    alter database archivelog;
+    alter database open;
+    alter pluggable database all open;
+    alter system switch logfile;
+    exit
+    SQL
+  environment: "{{ ora_env }}"
+  become: true
+  become_user: oracle
+  when: logmode.stdout != 'ARCHIVELOG'
+  changed_when: true

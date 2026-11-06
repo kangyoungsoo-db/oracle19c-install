@@ -1,0 +1,55 @@
+---
+# v1 문제 M1: "-memoryMgmtType ASMM"은 없는 값이라 AMM(memory_target)으로 만들어졌고,
+# 그래서 HugePages 단계가 처음엔 항상 실패했습니다. → AUTO_SGA + -totalMemory 고정값
+- name: DBCA — CDB {{ oracle_sid }} + PDB {{ pdb_name }} 만들기 (20~40분)
+  ansible.builtin.command: >-
+    dbca -silent -createDatabase
+    -templateName General_Purpose.dbc
+    -gdbname {{ oracle_sid }} -sid {{ oracle_sid }}
+    -responseFile NO_VALUE
+    -characterSet {{ db_charset }} -nationalCharacterSet AL16UTF16
+    -sysPassword {{ db_password }} -systemPassword {{ db_password }}
+    -createAsContainerDatabase true -numberOfPDBs 1
+    -pdbName {{ pdb_name }} -pdbAdminPassword {{ db_password }}
+    -databaseType MULTIPURPOSE
+    -memoryMgmtType AUTO_SGA -totalMemory {{ total_memory_mb }}
+    -storageType FS -datafileDestination /oradata
+    -redoLogFileSize 200
+    -emConfiguration NONE
+    -ignorePreReqs
+  args:
+    creates: "/oradata/{{ oracle_sid | upper }}/system01.dbf"
+  environment: "{{ ora_env }}"
+  become: true
+  become_user: oracle
+  # 명령 줄에 SYS/SYSTEM/PDBADMIN 비밀번호가 들어가므로 -v 출력과 로그에 남기지 않는다.
+  # 실패 원인을 볼 때는 /u01/app/oracle/cfgtoollogs/dbca/ 아래 로그를 확인한다.
+  no_log: true
+
+- name: DB 생성 후 설정 — PDB 자동 OPEN(SAVE STATE), 리스너 등록, AMM 꺼짐 확인
+  ansible.builtin.shell: |
+    set -o pipefail
+    sqlplus -s / as sysdba <<'SQL' | tee /tmp/post_dbca.txt
+    whenever sqlerror exit failure
+    set heading off feedback off pagesize 0
+    alter pluggable database all open;
+    alter pluggable database all save state;
+    alter system set local_listener='(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))' scope=both;
+    alter system register;
+    select 'memory_target='||value from v$parameter where name='memory_target';
+    select 'sga_target='||value from v$parameter where name='sga_target';
+    exit
+    SQL
+  environment: "{{ ora_env }}"
+  become: true
+  become_user: oracle
+  register: post_dbca
+  changed_when: false
+
+- name: AMM이 아닌지 확인 (memory_target=0 이어야 HugePages 사용 가능)
+  ansible.builtin.assert:
+    that:
+      - "'memory_target=0' in post_dbca.stdout"
+      - "'sga_target=0' not in post_dbca.stdout"
+    fail_msg: "DB가 AMM으로 만들어졌습니다: {{ post_dbca.stdout }}"
+    success_msg: "ASMM(sga_target) 확인"

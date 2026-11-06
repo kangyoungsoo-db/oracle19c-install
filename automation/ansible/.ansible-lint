@@ -1,0 +1,5 @@
+# 한글 태스크 이름·안내용 템플릿 이름과 systemctl/grubby 직접 호출은 의도한 것
+skip_list:
+  - name[casing]
+  - name[template]
+  - command-instead-of-module
