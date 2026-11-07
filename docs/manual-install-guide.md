@@ -110,26 +110,26 @@
 
 VirtualBox → **새로 만들기(New)**. 아래 값만 넣는다. VirtualBox 7.x 전문가 모드 기준이고, 구역 이름은 버전마다 조금 다르다.
 
-#### 화면 1: 이름과 운영체제
+#### 구역 1: 이름과 운영체제
 
 1. VM Name: **dbts93**을 입력한다.
-2. VM Folder: **D:\VirtualBoxVMs**
-3. ISO Image: **D:\ISO\OracleLinux-R8-U8-x86_64-dvd.iso**
-4. OS: **Linux**
-5. OS Distribution: **Oracle**
-6. OS Version: **Oracle Linux 8.x (64-bit)**
+2. VM Folder: **D:\VirtualBoxVMs**를 고른다.
+3. ISO Image: **D:\ISO\OracleLinux-R8-U8-x86_64-dvd.iso**를 고른다.
+4. OS: **Linux**인지 확인한다 (ISO를 고르면 자동으로 채워진다).
+5. OS Distribution: **Oracle**인지 확인한다 (ISO를 고르면 자동으로 채워진다).
+6. OS Version: **Oracle Linux 8.x (64-bit)**인지 확인한다 (ISO를 고르면 자동으로 채워진다).
 7. Skip Unattended Installation: 체크한다.
 
-#### 화면 2: 하드웨어
+#### 구역 2: 하드웨어
 
 1. Base Memory: **4096 MB**를 입력한다.
 2. Processors: **2**를 입력한다.
 
-#### 화면 3: 디스크
+#### 구역 3: 디스크
 
 1. Create a Virtual Hard Disk Now: 선택한다.
 2. Disk Size: **50.00 GB**를 입력한다.
-3. Hard Disk File Type: **VDI (VirtualBox Disk Image)**
+3. Hard Disk File Type: **VDI (VirtualBox Disk Image)** 그대로 둔다.
 4. Pre-allocate Full Size: 체크하지 않는다.
 
 > **⚠️ 주의**: ISO를 고르면 VirtualBox가 **무인 설치(Unattended Installation)**를 자동으로 켠다. 이대로 가면 파티션, 네트워크를 고를 기회 없이 설치가 끝난다. **'Skip Unattended Installation'을 체크**(버전에 따라 'Proceed with Unattended Installation' 체크 해제)한다.
@@ -316,11 +316,11 @@ Gateway를 넣지 않는 것이 핵심이다.
 2. Remote host: `192.168.10.93`을 입력한다.
 3. Specify username: 체크한다.
 4. Username: `root`를 입력한다. 두 번째 세션은 oracle이다.
-5. Port: **22**
+5. Port: **22**인지 확인한다.
 6. **Advanced SSH settings** 탭을 연다.
 7. X11-Forwarding: 체크한다(기본으로 켜져 있다).
 8. SSH-browser (SFTP): 체크된 상태로 둔다.
-9. Bookmark settings → Session name: **dbts93-root / dbts93-oracle**
+9. Bookmark settings → Session name: **dbts93-root / dbts93-oracle**인지 확인한다.
 10. OK를 누른다. 비밀번호는 6단계 값이다.
 
 🧑‍💻 **dbts93: root #**
@@ -723,13 +723,13 @@ dbca
 3. Create as Container database: 체크한다.
 4. Use Local Undo tablespace for PDBs: 체크된 상태로 둔다.
 5. Create a Container database with one or more PDBs: 선택한다.
-6. Number of PDBs: **1**
+6. Number of PDBs: **1**인지 확인한다.
 7. PDB name: **pdb**를 입력한다.
 
 #### Step 5 of 14: Select Database Storage Option (교재 74p)
 
 1. Use following for the database storage attributes: 선택한다.
-2. Database files storage type: **File System**
+2. Database files storage type: **File System**인지 확인한다.
 3. Database files location: 기본값 {ORACLE_BASE}/oradata/… 를 지우고 **/oradata/{DB_UNIQUE_NAME}**을 직접 입력한다.
 
 #### Step 9 of 14: Specify Configuration Options, Memory 탭 (교재 78p)
@@ -745,9 +745,9 @@ dbca
 1. **Character sets** 탭을 연다.
 2. Choose from the list of character sets: 선택한다.
 3. Database character set: **KO16MSWIN949 - MS Windows Code Page 949 Korean**을 고른다.
-4. National character set: **AL16UTF16 - Unicode UTF-16 Universal character set**
-5. Default language: **American**
-6. Default territory: **United States**
+4. National character set: **AL16UTF16 - Unicode UTF-16 Universal character set**인지 확인한다.
+5. Default language: **American**인지 확인한다.
+6. Default territory: **United States**인지 확인한다.
 
 | # | 화면 | 할 것 | 교재 |
 |---|---|---|---|
@@ -857,9 +857,9 @@ SID가 아니라 Service Name으로 접속한다.
 3. Host: `192.168.10.93`을 입력한다.
 4. Port: `1521`을 입력한다.
 5. Database: `pdb`를 입력하고, 바로 아래 종류는 **Service Name**을 고른다.
-6. Authentication: **Oracle Database Native**
-7. Username: `system`
-8. Password: `<비밀번호>`
+6. Authentication: **Oracle Database Native**인지 확인한다.
+7. Username: `system`인지 확인한다.
+8. Password: `<비밀번호>`인지 확인한다.
 9. **연결 테스트**를 누른다.
 
 > **📘 교재와 다름**: 교재 87p의 tnsnames는 `(SID = ORCL)`로 접속한다. CDB에서 PDB에 들어가려면 SID가 아니라 **SERVICE_NAME**(`pdb`)으로 접속해야 한다. 교재 88p의 `SQLNET.ALLOWED_LOGON_VERSION_*=10`은 옛 클라이언트용이라 넣지 않았다(DBeaver는 최신 JDBC).

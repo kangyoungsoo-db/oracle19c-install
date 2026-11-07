@@ -229,24 +229,24 @@
 
 ## 6. 내일 다시 할 때 체크리스트
 
-- [ ] 6단계: KDUMP **끄기**, Installation Destination에서 **sda만** 체크
-- [ ] 7단계: enp0s3 Gateway **비우기**, 두 어댑터 ON, Host Name `dbts93` → **Apply**
-- [ ] 9단계 첫 로그인: 아이디는 **`root`** · `ip route`에 `default via 10.0.3.2`가 없으면 ①의 nmcli
-- [ ] 붙여넣기 전: **탭 이름과 `#` / `$`** 확인
-- [ ] 긴 한 줄 명령은 붙여넣은 뒤 **한 줄로 들어갔는지** 보고 Enter
-- [ ] 16단계: `passwd oracle`은 **따로**
-- [ ] 17단계: SFTP 업로드가 **끝난 뒤** 명령 · 경로 칸에 `/work/media` 입력 후 목록 확인
-- [ ] 20단계: `oklist` 등 원래 파일 크기 확인 (문제 ⑥)
-- [ ] 23단계 DBCA:
+- 6단계: KDUMP **끄기**, Installation Destination에서 **sda만** 체크
+- 7단계: enp0s3 Gateway **비우기**, 두 어댑터 ON, Host Name `dbts93` → **Apply**
+- 9단계 첫 로그인: 아이디는 **`root`** · `ip route`에 `default via 10.0.3.2`가 없으면 ①의 nmcli
+- 붙여넣기 전: **탭 이름과 `#` / `$`** 확인
+- 긴 한 줄 명령은 붙여넣은 뒤 **한 줄로 들어갔는지** 보고 Enter
+- 16단계: `passwd oracle`은 **따로**
+- 17단계: SFTP 업로드가 **끝난 뒤** 명령 · 경로 칸에 `/work/media` 입력 후 목록 확인
+- 20단계: `oklist` 등 원래 파일 크기 확인 (문제 ⑥)
+- 23단계 DBCA:
   - 4번 Global name **`orcl`**(`.localdomain` 지우기)
   - 5번 **`/oradata/{DB_UNIQUE_NAME}`**
   - 9번 **ASMM 1152/384** · **KO16MSWIN949**
   - 11번 비밀번호 **`<비밀번호>`** 정확히 입력
   - 13번 Summary에서 `{ORACLE_BASE}`, `db_domain`이 없는지 확인
-- [ ] DBCA가 오래 멈추면: 창은 두고 `ls -lt $ORACLE_BASE/cfgtoollogs/dbca/orcl` · `show pdbs`로 판단
-- [ ] 25단계: tnsnames는 **`>>`** · DBeaver는 **Service Name `pdb`**
-- [ ] 단계별 스냅샷: `A-끝` · `B-끝` · `G-끝` · `I-완료`
-- [ ] 29 · 30단계 결과 파일 이름 확인: 설치 직후 `check_install.txt`, 재부팅 후 `check_reboot.txt` (오늘은 재부팅 후 실행으로 check_install을 덮어씀)
+- DBCA가 오래 멈추면: 창은 두고 `ls -lt $ORACLE_BASE/cfgtoollogs/dbca/orcl` · `show pdbs`로 판단
+- 25단계: tnsnames는 **`>>`** · DBeaver는 **Service Name `pdb`**
+- 단계별 스냅샷: `A-끝` · `B-끝` · `G-끝` · `I-완료`
+- 29 · 30단계 결과 파일 이름 확인: 설치 직후 `check_install.txt`, 재부팅 후 `check_reboot.txt` (오늘은 재부팅 후 실행으로 check_install을 덮어씀)
 
 ---
 
@@ -256,7 +256,7 @@
 |---|---|
 | `/backup/check_reboot.txt` | ✅ PASS 17 / FAIL 0 (21:19) · PC로 내려받기 권장 |
 | `/backup/check_install.txt` | ⚠️ 재부팅 후 중단된 실행으로 덮어써짐 · 설치 직후 PASS 17은 MobaXterm 화면 기록에만 남음 |
-| `oklist` 등 원래 파일 크기 | ☐ 미확인 |
-| crash recovery 로그 | ☐ 미확인 (정상 종료 뒤 꺼진 것으로 추정) |
-| VirtualBox 스냅샷 `I-완료` | ☐ |
-| RU 19.25 (E 파트) | ☐ zip 없음 |
+| `oklist` 등 원래 파일 크기 | 미확인 |
+| crash recovery 로그 | 미확인 (정상 종료 뒤 꺼진 것으로 추정) |
+| VirtualBox 스냅샷 `I-완료` | |
+| RU 19.25 (E 파트) | zip 없음 |
