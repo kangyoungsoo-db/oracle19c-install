@@ -33,8 +33,6 @@
 
 ### O2. 전체 구조
 
-> [이미지 자리: 그림. PC의 D 드라이브 두 폴더가 VM 안의 /vagrant, /stage로 연결되고, Ansible은 VM 안에서 자기 자신을 설치한다]
-
 **선택과 이유**
 
 - **`media`와 프로젝트 분리**: 3GB 설치 파일은 저장소에 넣지 않는다. 코드(프로젝트)는 공유하고 버전 관리하며, 라이선스가 걸린 파일은 각자 받아 둔다.
@@ -195,8 +193,6 @@ end
 ### B0. 전체 흐름과 설계 원칙
 
 **목표**: 10단계가 어떤 순서로, 어떤 원칙으로 짜였는지 먼저 본다.
-
-> [이미지 자리: 그림. 10단계, 각 단계 끝의 검사(✔)를 통과해야 다음 단계로 간다]
 
 - **다시 실행해도 안전** (`creates:`, 상태 확인 후 실행): 실패한 곳을 고치고 그대로 다시 돌리면 끝난 단계는 건너뛴다(멱등성).
 - **조용히 실패하지 않기** (단계 끝마다 `assert`): SHA256, `bin/oracle` 크기, `memory_target=0`, HugePages 사용 여부를 확인하고 아니면 멈춘다.
@@ -438,8 +434,6 @@ LimitNOFILE=65536
 
 **목표**: SGA를 2MB 고정 페이지에 올린다. v1은 순서가 뒤집혀 있었다.
 
-> [이미지 자리: 그림. 왼쪽부터 순서대로, ①에서 AMM이면 50단계에서 이미 멈춘다]
-
 📄 `tasks/70_hugepages.yml`
 ```yaml
 hp_pages: "{{ ((sga_max_size | int) / 2097152) | round(0, 'ceil') | int + 16 }}"
@@ -554,17 +548,17 @@ dbts94   : ok=50   changed=22   unreachable=0   failed=0   skipped=3
 | 1 | 1차 `vagrant up` (v2) | △ | 00~55단계 한 번에 통과(VM 부팅 후 약 25분), 60단계에서 SELinux로 실패 → D 파트 |
 | 2 | v2.1 수정 후 `autostart,hugepages,verify`만 | ✅ | PASS 16 / FAIL 0, `SELinux Enforcing · oracle-db active` |
 | 3 | `vagrant reload` 후 점검 | ✅ | PASS 16 / FAIL 0, HugePages 592 / 20, 자동 기동 |
-| 4 | PC DBeaver → PDB | ✅ | Connected (1000 ms), 아래 화면 |
+| 4 | PC DBeaver → PDB | ✅ | Connected (1000 ms), 아래 C3 |
 | 5 | `vagrant destroy` → `vagrant up` | ✅ | **28분 55초, failed=0**, 1차와 같은 값 |
 
 ---
 
 ### C3. 외부 접속: DBeaver
 
-> [이미지 자리: 실제 화면. PC의 DBeaver에서 192.168.10.94:1521, Service Name pdb, system으로 연결 테스트, 실제 화면(2026-10-28)]
+PC의 DBeaver에서 192.168.10.94:1521, Service Name pdb, system으로 연결 테스트를 했다(2026-10-28).
 
 - **Service Name `pdb`**: CDB 구조에서는 SID(`orcl`)로 접속하면 CDB$ROOT로 들어간다. 업무 데이터가 있는 PDB는 서비스 이름으로 접속한다.
-- **이 화면이 증명하는 것**: 리스너가 루프백이 아닌 서비스 IP에서 받고(/etc/hosts, `HOST=0.0.0.0`), PDB가 열려 있고, 리스너에 서비스가 등록돼 있다.
+- **이 연결이 증명하는 것**: 리스너가 루프백이 아닌 서비스 IP에서 받고(/etc/hosts, `HOST=0.0.0.0`), PDB가 열려 있고, 리스너에 서비스가 등록돼 있다.
 
 ---
 
@@ -618,8 +612,6 @@ type=AVC msg=audit(1793153862.416:1924): avc:  denied  { execute } for  pid=3774
   name="dbstart" dev="dm-2" scontext=system_u:system_r:init_t:s0
   tcontext=unconfined_u:object_r:unlabeled_t:s0 tclass=file permissive=0
 ```
-
-> [이미지 자리: 그림. systemd(init_t)는 라벨 없는(unlabeled_t) 파일을 서비스로 실행할 수 없다 → 라벨을 붙이고, 시스템 셸(bin_t)을 거쳐 실행]
 
 - **원인**: Oracle Linux 8 박스는 SELinux가 `Enforcing`이다. 새로 만든 xfs(`/u01`)에는 SELinux 라벨이 없어(`unlabeled_t`) systemd(`init_t`)가 그 파일을 서비스 명령으로 실행하는 것이 정책상 거부됐다.
 - **해결 ①**: 디스크를 마운트한 직후 `restorecon -R`로 정책 기본 라벨을 붙인다(`setup_disk.sh`, 60단계 정리 작업).

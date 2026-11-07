@@ -85,17 +85,18 @@
 
 > **✅ 성공**: `IPAddress: 192.168.10.1` 이 있는 줄이 보이면 그 위의 `Name`(예: `VirtualBox Host-Only Ethernet Adapter #2`)을 적어 두고 **2단계로**. 자동판(`vagrant up`)을 한 번 돌렸다면 이미 만들어져 있다.
 
-없으면 VirtualBox에서 만든다: **파일 → 도구 → 네트워크 관리자 → Host-only Networks → 만들기** → 새 어댑터를 골라 아래처럼 바꾸고 적용한다.
+없으면 VirtualBox에서 만든다. 이미 192.168.10.1 어댑터가 있으면 새로 만들지 않는다.
 
-> [이미지 자리: 화면 재현 (VirtualBox: 네트워크 관리자, Host-only Networks)]
->
-> - VirtualBox Host-Only Ethernet Adapter #2, 192.168.10.1/24, 사용 안 함
-> - 탭: **어댑터**
-> - (●) 수동으로 어댑터 설정(Configure Adapter Manually) ← 선택
-> - IPv4 주소: **192.168.10.1** ← 입력
-> - IPv4 네트워크 마스크: **255.255.255.0** ← 입력
-> - DHCP 서버 탭 → '서버 사용' 체크 해제
-> *1단계, 이미 192.168.10.1 어댑터가 있으면 새로 만들지 않는다*
+#### 네트워크 관리자: Host-only Networks
+
+1. **파일 → 도구 → 네트워크 관리자 → Host-only Networks → 만들기**를 누른다.
+2. 새로 생긴 어댑터를 고른다. 목록에는 VirtualBox Host-Only Ethernet Adapter #2, 192.168.10.1/24, 사용 안 함처럼 보인다.
+3. **어댑터** 탭을 연다.
+4. 수동으로 어댑터 설정(Configure Adapter Manually): 선택한다.
+5. IPv4 주소: **192.168.10.1**을 입력한다.
+6. IPv4 네트워크 마스크: **255.255.255.0**을 입력한다.
+7. DHCP 서버 탭: '서버 사용' 체크를 해제한다.
+8. 적용한다.
 
 - **Host-Only**: PC와 VM만 통하는 사설망. MobaXterm(SSH), DBeaver(1521)가 이 길로 VM에 들어간다.
 - **DHCP 끔**: DB 서버는 IP가 바뀌면 안 된다. VM 안에서 `.93`을 직접 넣는다.
@@ -107,24 +108,29 @@
 
 **목표**: 이름 `dbts93`, Oracle Linux 64-bit, 메모리 4GB, CPU 2, OS 디스크 50GB(동적)인 빈 VM을 만든다.
 
-VirtualBox → **새로 만들기(New)**. 아래 값만 넣는다.
+VirtualBox → **새로 만들기(New)**. 아래 값만 넣는다. VirtualBox 7.x 전문가 모드 기준이고, 구역 이름은 버전마다 조금 다르다.
 
-> [이미지 자리: 화면 재현 (VirtualBox: 가상 머신 만들기, Virtual machine name and operating system)]
->
-> - VM Name: **dbts93** ← 입력
-> - VM Folder: **D:\VirtualBoxVMs**
-> - ISO Image: **D:\ISO\OracleLinux-R8-U8-x86_64-dvd.iso**
-> - OS: **Linux**
-> - OS Distribution: **Oracle**
-> - OS Version: **Oracle Linux 8.x (64-bit)**
-> - [x] Skip Unattended Installation ← 선택
-> - Base Memory: **4096 MB** ← 입력
-> - Processors: **2** ← 입력
-> - (●) Create a Virtual Hard Disk Now
-> - Disk Size: **50.00 GB** ← 입력
-> - Hard Disk File Type: **VDI (VirtualBox Disk Image)**
-> - [ ] Pre-allocate Full Size ← 고르지 않음
-> *2단계, VirtualBox 7.x 전문가 모드 기준. 구역 이름은 버전마다 조금 다르다*
+#### 화면 1: 이름과 운영체제
+
+1. VM Name: **dbts93**을 입력한다.
+2. VM Folder: **D:\VirtualBoxVMs**
+3. ISO Image: **D:\ISO\OracleLinux-R8-U8-x86_64-dvd.iso**
+4. OS: **Linux**
+5. OS Distribution: **Oracle**
+6. OS Version: **Oracle Linux 8.x (64-bit)**
+7. Skip Unattended Installation: 체크한다.
+
+#### 화면 2: 하드웨어
+
+1. Base Memory: **4096 MB**를 입력한다.
+2. Processors: **2**를 입력한다.
+
+#### 화면 3: 디스크
+
+1. Create a Virtual Hard Disk Now: 선택한다.
+2. Disk Size: **50.00 GB**를 입력한다.
+3. Hard Disk File Type: **VDI (VirtualBox Disk Image)**
+4. Pre-allocate Full Size: 체크하지 않는다.
 
 > **⚠️ 주의**: ISO를 고르면 VirtualBox가 **무인 설치(Unattended Installation)**를 자동으로 켠다. 이대로 가면 파티션, 네트워크를 고를 기회 없이 설치가 끝난다. **'Skip Unattended Installation'을 체크**(버전에 따라 'Proceed with Unattended Installation' 체크 해제)한다.
 
@@ -141,17 +147,17 @@ VirtualBox → **새로 만들기(New)**. 아래 값만 넣는다.
 
 VM 선택 → **설정 → 네트워크**.
 
-> [이미지 자리: 화면 재현 (dbts93: 설정, 네트워크)]
->
-> - 탭: **어댑터 1**
-> - [x] 네트워크 어댑터 사용하기
-> - 다음에 연결됨: **호스트 전용 어댑터 (Host-only Adapter)** ← 입력
-> - 이름: **VirtualBox Host-Only Ethernet Adapter #2  (192.168.10.1)** ← 입력
-> - 탭: **어댑터 2**
-> - [x] 네트워크 어댑터 사용하기 ← 선택
-> - 다음에 연결됨: **NAT** ← 입력
-> - 고급 → 포트 포워딩: 설정하지 않음
-> *3단계, 어댑터 1의 이름은 1단계에서 적어 둔 192.168.10.1 어댑터*
+#### 어댑터 1 탭
+
+1. 네트워크 어댑터 사용하기: 체크한다.
+2. 다음에 연결됨: **호스트 전용 어댑터 (Host-only Adapter)**를 고른다.
+3. 이름: **VirtualBox Host-Only Ethernet Adapter #2  (192.168.10.1)**을 고른다. 1단계에서 적어 둔 192.168.10.1 어댑터다.
+
+#### 어댑터 2 탭
+
+1. 네트워크 어댑터 사용하기: 체크한다.
+2. 다음에 연결됨: **NAT**를 고른다.
+3. 고급 → 포트 포워딩: 설정하지 않는다.
 
 > **⚠️ 주의**: 이전 실습에서 Host-Only만 꽂고 시작했다가 `dnf install`에서 인터넷이 없어 막혔고, 나중에 NAT를 추가하면서 Host-Only에 게이트웨이를 넣어 **가짜 기본 경로**가 생겨 인터넷이 계속 안 됐다. 처음부터 둘 다 꽂고, Host-Only에는 게이트웨이를 넣지 않으면 이 문제 자체가 없다.
 
@@ -165,17 +171,18 @@ VM 선택 → **설정 → 네트워크**.
 
 **목표**: `/u01`, `/oradata`, `/backup`이 될 디스크 3개(50, 100, 100GB)를 SATA 포트 1, 2, 3에 새로 만들어 붙인다.
 
-VM이 **꺼진 상태**에서 **설정 → 저장소 → SATA 컨트롤러 → 하드 디스크 추가(디스크 아이콘 +) → 만들기**를 세 번.
+VM이 **꺼진 상태**에서 아래를 세 번 한다. 포트 1, 2, 3 순서대로 만들면 VM 안에서 sdb, sdc, sdd로 잡힌다.
 
-> [이미지 자리: 화면 재현 (dbts93: 설정, 저장소)]
->
-> - dbts93.vdi (OS), 0, 50 GB, D:\VirtualBoxVMs\dbts93\dbts93.vdi
-> - dbts93_u01.vdi, 1, 50 GB, …\dbts93\dbts93_u01.vdi
-> - dbts93_oradata.vdi, 2, 100 GB, …\dbts93\dbts93_oradata.vdi
-> - dbts93_backup.vdi, 3, 100 GB, …\dbts93\dbts93_backup.vdi
-> - 광학 드라이브, 4, -, OracleLinux-R8-U8-x86_64-dvd.iso
-> - 만들기: VDI, 동적 할당, 이름과 크기만 바꾼다
-> *4단계, 포트 1, 2, 3 순서대로 만들면 VM 안에서 sdb, sdc, sdd로 잡힌다*
+1. **설정 → 저장소 → SATA 컨트롤러 → 하드 디스크 추가(디스크 아이콘 +) → 만들기**를 누른다.
+2. VDI, 동적 할당을 고르고 이름과 크기만 바꾼다.
+
+#### 설정, 저장소: 세 개를 붙인 뒤
+
+- dbts93.vdi (OS), 0, 50 GB, D:\VirtualBoxVMs\dbts93\dbts93.vdi
+- dbts93_u01.vdi, 1, 50 GB, …\dbts93\dbts93_u01.vdi
+- dbts93_oradata.vdi, 2, 100 GB, …\dbts93\dbts93_oradata.vdi
+- dbts93_backup.vdi, 3, 100 GB, …\dbts93\dbts93_backup.vdi
+- 광학 드라이브, 4, -, OracleLinux-R8-U8-x86_64-dvd.iso
 
 > **⚠️ 주의**: Virtual Media Manager 목록에 예전 VM의 `u01.vdi` 같은 파일이 보여도 **절대 고르지 않는다.** 두 VM이 같은 디스크를 물면 둘 다 깨진다. 항상 '만들기'로 새 파일을, VM 이름이 들어간 이름으로 만든다.
 
@@ -218,15 +225,16 @@ https://yum.oracle.com/ISOS/OracleLinux/OL8/u8/x86_64/OracleLinux-R8-U8-x86_64-d
 
 **목표**: 한 화면에 모인 6개 항목을 아래 값으로 채운다. 빨간 느낌표가 모두 사라지면 **Begin Installation**이 켜진다.
 
-> [이미지 자리: 화면 재현 (ORACLE LINUX 8.8 INSTALLATION, INSTALLATION SUMMARY)]
->
-> - Time & Date: **Asia/Seoul timezone**
-> - Software Selection: **Server**
-> - Installation Destination: **Automatic partitioning selected**
-> - KDUMP: **Kdump is disabled**
-> - Network & Host Name: **Wired (enp0s3) connected**
-> - Root Password: **Root password is set**
-> *6단계, 빨간 테두리 5곳을 채운다*
+#### INSTALLATION SUMMARY: 다 채운 뒤
+
+빨간 테두리 5곳을 채우면 아래처럼 보인다.
+
+- Time & Date: **Asia/Seoul timezone**
+- Software Selection: **Server**
+- Installation Destination: **Automatic partitioning selected**
+- KDUMP: **Kdump is disabled**
+- Network & Host Name: **Wired (enp0s3) connected**
+- Root Password: **Root password is set**
 
 - **Time & Date**: Region **Asia** / City **Seoul**. alert log, 백업 시각이 한국 시간으로 남는다.
 - **Software Selection**: **Server** (Add-on 없음). GUI 없는 서버 구성. Minimal보다 기본 관리 도구가 많다. X11에 필요한 xauth는 11단계에서 확실히 설치한다.
@@ -243,24 +251,27 @@ https://yum.oracle.com/ISOS/OracleLinux/OL8/u8/x86_64/OracleLinux-R8-U8-x86_64-d
 
 **목표**: `enp0s3` = `192.168.10.93/24` 게이트웨이 없음, `enp0s8` = 자동(DHCP), 호스트 이름 `dbts93`.
 
-> [이미지 자리: 화면 재현 (ORACLE LINUX 8.8 INSTALLATION, NETWORK & HOST NAME)]
->
-> - Ethernet (enp0s3): Intel 82540EM, Connected, 192.168.10.93, ON
-> - Ethernet (enp0s8): Intel 82540EM, Connected, 10.0.3.15 (DHCP), ON
-> - Host Name: **dbts93     [ Apply ]** ← 입력
-> - Current host name: dbts93
-> *7단계, 두 어댑터 모두 ON, 호스트 이름 입력 후 Apply*
+#### NETWORK & HOST NAME
 
-**enp0s3**를 고르고 **Configure… → IPv4 Settings**:
+1. Ethernet (enp0s3), Ethernet (enp0s8): 오른쪽 스위치를 둘 다 ON으로 켠다.
+2. Host Name: **dbts93**을 입력하고 **Apply**를 누른다.
 
-> [이미지 자리: 화면 재현 (Editing enp0s3, IPv4 Settings)]
->
-> - 탭: **IPv4 Settings**
-> - Method: **Manual** ← 입력
-> - 192.168.10.93, 24, (비워 둠)
-> - DNS servers: **(비워 둠)**
-> - General 탭: 'Connect automatically with priority' 체크(기본값)
-> *7단계, Gateway를 넣지 않는 것이 핵심*
+끝나면 아래처럼 보인다.
+
+- Ethernet (enp0s3): Intel 82540EM, Connected, 192.168.10.93, ON
+- Ethernet (enp0s8): Intel 82540EM, Connected, 10.0.3.15 (DHCP), ON
+- Current host name: dbts93
+
+#### Editing enp0s3: IPv4 Settings
+
+Gateway를 넣지 않는 것이 핵심이다.
+
+1. **enp0s3**를 고르고 **Configure…**를 누른다.
+2. **IPv4 Settings** 탭을 연다.
+3. Method: **Manual**을 고른다.
+4. 주소 칸에 192.168.10.93, 24를 넣고 Gateway는 비워 둔다.
+5. DNS servers: 비워 둔다.
+6. General 탭: 'Connect automatically with priority'가 체크돼 있는지 본다(기본값).
 
 > **⚠️ 주의**: Gateway 칸은 **비워 둔다.** `192.168.10.1`은 PC의 가상 어댑터일 뿐 인터넷 출구가 아니다. 여기에 넣으면 NAT의 진짜 경로보다 우선하는 기본 경로가 생겨 `dnf`가 `Could not resolve host`로 막힌다(이전 실습에서 실제로 겪었다).
 
@@ -274,14 +285,13 @@ https://yum.oracle.com/ISOS/OracleLinux/OL8/u8/x86_64/OracleLinux-R8-U8-x86_64-d
 
 **목표**: OS 디스크(sda, 50GB)에만 설치하고, Oracle용 디스크 3개는 비워 둔다.
 
-> [이미지 자리: 화면 재현 (ORACLE LINUX 8.8 INSTALLATION, INSTALLATION DESTINATION)]
->
-> - ATA VBOX HARDDISK, sda, 50 GiB, ✔ 체크
-> - ATA VBOX HARDDISK, sdb, 50 GiB, 체크 안 함
-> - ATA VBOX HARDDISK, sdc, 100 GiB, 체크 안 함
-> - ATA VBOX HARDDISK, sdd, 100 GiB, 체크 안 함
-> - (●) Automatic ← 선택
-> *8단계, sda 하나만, Automatic*
+#### INSTALLATION DESTINATION
+
+1. ATA VBOX HARDDISK, sda, 50 GiB: 체크한다.
+2. ATA VBOX HARDDISK, sdb, 50 GiB: 체크하지 않는다.
+3. ATA VBOX HARDDISK, sdc, 100 GiB: 체크하지 않는다.
+4. ATA VBOX HARDDISK, sdd, 100 GiB: 체크하지 않는다.
+5. Storage Configuration: Automatic을 선택한다.
 
 **Storage Configuration: Automatic** 그대로 Done. 자동 구성은 일반 LVM으로 `/boot` 1GB, swap(RAM과 같은 약 4GB), `/`(나머지)를 만든다. 교재 23p의 스왑 기준(RAM 2~16GB면 RAM과 같게)과 맞는다.
 
@@ -298,19 +308,20 @@ https://yum.oracle.com/ISOS/OracleLinux/OL8/u8/x86_64/OracleLinux-R8-U8-x86_64-d
 
 **Begin Installation** → 10~15분 → **Reboot System**. 다시 켜질 때 ISO는 VirtualBox가 자동으로 빼 준다(설치 화면이 또 뜨면 광학 드라이브에서 ISO 제거 후 재시작).
 
-MobaXterm → **Session → SSH**: Remote host `192.168.10.93`, Specify username `root`, Port 22 → OK. 비밀번호는 6단계 값.
+#### MobaXterm: Session settings, SSH
 
-> [이미지 자리: 화면 재현 (MobaXterm: Session settings, SSH)]
->
-> - Remote host *: **192.168.10.93** ← 입력
-> - [x] Specify username
-> - Username: **root   (두 번째 세션은 oracle)** ← 입력
-> - Port: **22**
-> - 탭: **Advanced SSH settings**
-> - [x] X11-Forwarding ← 선택
-> - [x] SSH-browser (SFTP)
-> - Bookmark settings → Session name: **dbts93-root / dbts93-oracle**
-> *9, 16단계, X11-Forwarding은 기본으로 켜져 있다*
+9단계와 16단계에서 같은 화면을 쓴다.
+
+1. MobaXterm에서 **Session → SSH**를 누른다.
+2. Remote host: `192.168.10.93`을 입력한다.
+3. Specify username: 체크한다.
+4. Username: `root`를 입력한다. 두 번째 세션은 oracle이다.
+5. Port: **22**
+6. **Advanced SSH settings** 탭을 연다.
+7. X11-Forwarding: 체크한다(기본으로 켜져 있다).
+8. SSH-browser (SFTP): 체크된 상태로 둔다.
+9. Bookmark settings → Session name: **dbts93-root / dbts93-oracle**
+10. OK를 누른다. 비밀번호는 6단계 값이다.
 
 🧑‍💻 **dbts93: root #**
 ```bash
@@ -572,41 +583,36 @@ export CV_ASSUME_DISTID=OEL7.8
 
 > **📘 교재와 다름**: 교재 57p는 `CV_ASSUME_DISTID=OL7`로 쓰고, 이 가이드는 Oracle 문서, oracle-base에서 쓰는 형식인 `OEL7.8`을 쓴다(자동판과 같은 값). 19.3 설치 프로그램이 OL8을 몰라서 `[INS-08101] … clientSupportedOSCheck`로 멈추는 것을 막는다. 설치 프로그램에게 'OL7인 셈 치라'고 알려 주는 것일 뿐 실제 OS는 바뀌지 않는다.
 
-> [이미지 자리: 화면 재현 (Oracle Database 19c Installer - Step 1 of 9, Select Configuration Option)]
->
-> - Select any of the following install options.
-> - (●) Set Up Software Only ← 선택
-> *runInstaller 1, 교재 58p*
+#### Step 1 of 9: Select Configuration Option (교재 58p)
 
-> [이미지 자리: 화면 재현 (Oracle Database 19c Installer - Step 3 of 9, Select Database Edition)]
->
-> - Which database edition do you want to install?
-> - (●) Enterprise Edition ← 선택
-> *runInstaller 3, 교재 60p, 파티셔닝, 비트맵 인덱스 실습에 EE 필요*
+1. Set Up Software Only: 선택한다.
 
-> [이미지 자리: 화면 재현 (Oracle Database 19c Installer - Step 4 of 9, Specify Installation Location)]
->
-> - Oracle base: **/u01/app/oracle** ← 입력
-> - Software location: **/u01/app/oracle/product/19.0.0.0/dbhome_1**
-> - Software location은 runInstaller를 실행한 ORACLE_HOME으로 고정
-> *runInstaller 4, 교재 61p (다음 Create Inventory: /u01/app/oraInventory, oinstall)*
+#### Step 3 of 9: Select Database Edition (교재 60p)
 
-> [이미지 자리: 화면 재현 (Oracle Database 19c Installer - Step 6 of 9, Privileged Operating System groups)]
->
-> - Database Administrator (OSDBA) group: **dba**
-> - Database Operator (OSOPER) group (Optional): **oper**
-> - Database Backup and Recovery (OSBACKUPDBA) group: **backupdba**
-> - Data Guard administrative (OSDGDBA) group: **dgdba**
-> - Encryption Key Management administrative (OSKMDBA) group: **kmdba**
-> - Real Application Cluster administrative (OSRACDBA) group: **racdba**
-> *runInstaller 6, 교재 63p, 기본값 그대로 (교재는 모두 dba)*
+1. Enterprise Edition: 선택한다. 파티셔닝, 비트맵 인덱스 실습에 EE가 필요하다.
 
-> [이미지 자리: 화면 재현 (Oracle Database 19c Installer - Step 7 of 9, Root script execution configuration)]
->
-> - [x] Automatically run configuration scripts ← 선택
->   - (●) Use "root" user credential ← 선택
->   - Password: **••••••••  (6단계 root 비밀번호)** ← 입력
-> *runInstaller 7, 교재 64p*
+#### Step 4 of 9: Specify Installation Location (교재 61p)
+
+1. Oracle base: **/u01/app/oracle**을 입력한다.
+2. Software location: **/u01/app/oracle/product/19.0.0.0/dbhome_1**. runInstaller를 실행한 ORACLE_HOME으로 고정돼 있다.
+3. 다음 Create Inventory 화면은 /u01/app/oraInventory, oinstall이다.
+
+#### Step 6 of 9: Privileged Operating System groups (교재 63p)
+
+기본값 그대로 둔다(교재는 모두 dba).
+
+- Database Administrator (OSDBA) group: **dba**
+- Database Operator (OSOPER) group (Optional): **oper**
+- Database Backup and Recovery (OSBACKUPDBA) group: **backupdba**
+- Data Guard administrative (OSDGDBA) group: **dgdba**
+- Encryption Key Management administrative (OSKMDBA) group: **kmdba**
+- Real Application Cluster administrative (OSRACDBA) group: **racdba**
+
+#### Step 7 of 9: Root script execution configuration (교재 64p)
+
+1. Automatically run configuration scripts: 체크한다.
+2. Use "root" user credential: 선택한다.
+3. Password: **••••••••  (6단계 root 비밀번호)**를 입력한다.
 
 | # | 화면 | 할 것 | 교재 |
 |---|---|---|---|
@@ -708,42 +714,40 @@ opatch lspatches
 dbca
 ```
 
-> [이미지 자리: 화면 재현 (Database Configuration Assistant - Step 4 of 14, Specify Database Identification Details)]
->
-> - Global database name: **orcl** ← 입력
-> - SID: **orcl** ← 입력
-> - [x] Create as Container database ← 선택
->   - [x] Use Local Undo tablespace for PDBs
->   - (●) Create a Container database with one or more PDBs ← 선택
->   - Number of PDBs: **1**
->   - PDB name: **pdb** ← 입력
-> *DBCA 4, 교재 73p는 Create as Container 체크 안 함(non-CDB)*
+#### Step 4 of 14: Specify Database Identification Details
 
-> [이미지 자리: 화면 재현 (Database Configuration Assistant - Step 5 of 14, Select Database Storage Option)]
->
-> - (●) Use following for the database storage attributes ← 선택
-> - Database files storage type: **File System**
-> - Database files location: **/oradata/{DB_UNIQUE_NAME}** ← 입력
-> *DBCA 5, 교재 74p, 기본값 {ORACLE_BASE}/oradata/… 를 지우고 직접 입력*
+교재 73p는 Create as Container를 체크하지 않는다(non-CDB).
 
-> [이미지 자리: 화면 재현 (Database Configuration Assistant - Step 9 of 14, Specify Configuration Options)]
->
-> - 탭: **Memory**
-> - (●) Use Automatic Shared Memory Management ← 선택
->   - SGA size: **1152  MB** ← 입력
->   - PGA size: **384  MB** ← 입력
-> - (●) Use Automatic Memory Management ← 고르지 않음
-> *DBCA 9 Memory, 교재 78p, 맨 아래 AMM은 고르지 않는다*
+1. Global database name: **orcl**을 입력한다.
+2. SID: **orcl**을 입력한다.
+3. Create as Container database: 체크한다.
+4. Use Local Undo tablespace for PDBs: 체크된 상태로 둔다.
+5. Create a Container database with one or more PDBs: 선택한다.
+6. Number of PDBs: **1**
+7. PDB name: **pdb**를 입력한다.
 
-> [이미지 자리: 화면 재현 (Database Configuration Assistant - Step 9 of 14, Specify Configuration Options)]
->
-> - 탭: **Character sets**
-> - (●) Choose from the list of character sets ← 선택
-> - Database character set: **KO16MSWIN949 - MS Windows Code Page 949 Korean** ← 입력
-> - National character set: **AL16UTF16 - Unicode UTF-16 Universal character set**
-> - Default language: **American**
-> - Default territory: **United States**
-> *DBCA 9 Character sets, 교재 79p*
+#### Step 5 of 14: Select Database Storage Option (교재 74p)
+
+1. Use following for the database storage attributes: 선택한다.
+2. Database files storage type: **File System**
+3. Database files location: 기본값 {ORACLE_BASE}/oradata/… 를 지우고 **/oradata/{DB_UNIQUE_NAME}**을 직접 입력한다.
+
+#### Step 9 of 14: Specify Configuration Options, Memory 탭 (교재 78p)
+
+1. **Memory** 탭을 연다.
+2. Use Automatic Shared Memory Management: 선택한다.
+3. SGA size: **1152  MB**를 입력한다.
+4. PGA size: **384  MB**를 입력한다.
+5. 맨 아래 Use Automatic Memory Management: 고르지 않는다.
+
+#### Step 9 of 14: Specify Configuration Options, Character sets 탭 (교재 79p)
+
+1. **Character sets** 탭을 연다.
+2. Choose from the list of character sets: 선택한다.
+3. Database character set: **KO16MSWIN949 - MS Windows Code Page 949 Korean**을 고른다.
+4. National character set: **AL16UTF16 - Unicode UTF-16 Universal character set**
+5. Default language: **American**
+6. Default territory: **United States**
 
 | # | 화면 | 할 것 | 교재 |
 |---|---|---|---|
@@ -844,19 +848,19 @@ echo "select sys_context('USERENV','CON_NAME') from dual;" | sqlplus -s system/<
 
 > **✅ 성공**: `listener.ora`에 DBCA가 만든 `(HOST = dbts93)(PORT = 1521)`, status에 `Service "orcl"`, `Service "pdb"`, 마지막 줄 결과 `PDB`
 
-PC의 DBeaver: **새 연결 → Oracle** → Host `192.168.10.93`, Port `1521`, Database **Service Name** `pdb`, Username `system`, Password `<비밀번호>` → **연결 테스트**.
+#### DBeaver: Connect to a database, Oracle 연결 설정
 
-> [이미지 자리: 화면 재현 (DBeaver: Connect to a database, Oracle 연결 설정)]
->
-> - (●) Connection type: Basic
-> - Host: **192.168.10.93** ← 입력
-> - Port: **1521** ← 입력
-> - Database: **pdb** ← 입력
-> - ↳: **Service Name** ← 입력
-> - Authentication: **Oracle Database Native**
-> - Username: **system**
-> - Password: **<비밀번호>**
-> *25단계, SID가 아니라 Service Name*
+SID가 아니라 Service Name으로 접속한다.
+
+1. PC의 DBeaver에서 **새 연결 → Oracle**을 고른다.
+2. Connection type: Basic을 선택한다.
+3. Host: `192.168.10.93`을 입력한다.
+4. Port: `1521`을 입력한다.
+5. Database: `pdb`를 입력하고, 바로 아래 종류는 **Service Name**을 고른다.
+6. Authentication: **Oracle Database Native**
+7. Username: `system`
+8. Password: `<비밀번호>`
+9. **연결 테스트**를 누른다.
 
 > **📘 교재와 다름**: 교재 87p의 tnsnames는 `(SID = ORCL)`로 접속한다. CDB에서 PDB에 들어가려면 SID가 아니라 **SERVICE_NAME**(`pdb`)으로 접속해야 한다. 교재 88p의 `SQLNET.ALLOWED_LOGON_VERSION_*=10`은 옛 클라이언트용이라 넣지 않았다(DBeaver는 최신 JDBC).
 
@@ -1160,19 +1164,3 @@ bash /work/media/check.sh | tee /backup/check_reboot.txt
 
 로그 위치: 설치 `/u01/app/oraInventory/logs/`, DBCA `/u01/app/oracle/cfgtoollogs/dbca/orcl/`, DB `alert_orcl.log`(`t_dbalert`), 리스너 `/u01/app/oracle/diag/tnslsnr/dbts93/listener/trace/listener.log`, 서비스 `journalctl -u oracle-db`
 
----
-
-## 실행 기록표
-
-| 파트 | 확인할 것 | 통과 | 날짜, 시간 | 메모 |
-|---|---|---|---|---|
-| A | VM, 네트워크, 디스크 준비 | ☐ |  |  |
-| B | OL 8.8 설치, `ip route` 기본 경로 1개 | ☐ |  |  |
-| C | preinstall, THP, LVM, 프로필, 업로드 | ☐ |  |  |
-| D | runInstaller, `bin/oracle` 정상 | ☐ |  |  |
-| E | OPatch, RU 19.25 (해당 시) | ☐ |  |  |
-| F | DBCA, PDB READ WRITE, ASMM | ☐ |  |  |
-| G | VM 안, DBeaver에서 pdb 접속 | ☐ |  |  |
-| H | ARCHIVELOG, HugePages, 자동 기동 | ☐ |  |  |
-| I-1 | 설치 직후 check.sh FAIL 0 | ☐ |  |  |
-| I-2 | 재부팅 후 check.sh FAIL 0 | ☐ |  |  |
