@@ -258,5 +258,5 @@
 | `/backup/check_install.txt` | ⚠️ 재부팅 후 중단된 실행으로 덮어써짐 · 설치 직후 PASS 17은 MobaXterm 화면 기록에만 남음 |
 | `oklist` 등 원래 파일 크기 | 미확인 |
 | crash recovery 로그 | 미확인 (정상 종료 뒤 꺼진 것으로 추정) |
-| VirtualBox 스냅샷 `I-완료` | |
+| VirtualBox 스냅샷 `I-완료` | 미확인 |
 | RU 19.25 (E 파트) | zip 없음 |

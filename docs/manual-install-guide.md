@@ -320,7 +320,7 @@ Gateway를 넣지 않는 것이 핵심이다.
 6. **Advanced SSH settings** 탭을 연다.
 7. X11-Forwarding: 체크한다(기본으로 켜져 있다).
 8. SSH-browser (SFTP): 체크된 상태로 둔다.
-9. Bookmark settings → Session name: **dbts93-root / dbts93-oracle**인지 확인한다.
+9. Bookmark settings → Session name: **dbts93-root / dbts93-oracle**를 입력한다.
 10. OK를 누른다. 비밀번호는 6단계 값이다.
 
 🧑‍💻 **dbts93: root #**
@@ -858,8 +858,8 @@ SID가 아니라 Service Name으로 접속한다.
 4. Port: `1521`을 입력한다.
 5. Database: `pdb`를 입력하고, 바로 아래 종류는 **Service Name**을 고른다.
 6. Authentication: **Oracle Database Native**인지 확인한다.
-7. Username: `system`인지 확인한다.
-8. Password: `<비밀번호>`인지 확인한다.
+7. Username: `system`을 입력한다.
+8. Password: `<비밀번호>`를 입력한다.
 9. **연결 테스트**를 누른다.
 
 > **📘 교재와 다름**: 교재 87p의 tnsnames는 `(SID = ORCL)`로 접속한다. CDB에서 PDB에 들어가려면 SID가 아니라 **SERVICE_NAME**(`pdb`)으로 접속해야 한다. 교재 88p의 `SQLNET.ALLOWED_LOGON_VERSION_*=10`은 옛 클라이언트용이라 넣지 않았다(DBeaver는 최신 JDBC).
